@@ -1,0 +1,80 @@
+import { useState } from 'react';
+import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+
+import { PickerField } from '@/components/PickerField';
+import { Colors, Spacing } from '@/constants/theme';
+import { useAccounts, useCreateAccount } from '@/hooks/useAccounts';
+
+interface AccountPickerProps {
+  value: string | null;
+  onSelect: (accountId: string) => void;
+  error?: string;
+}
+
+export function AccountPicker({ value, onSelect, error }: AccountPickerProps) {
+  const { data: accounts } = useAccounts();
+  const createAccount = useCreateAccount();
+  const [newName, setNewName] = useState('');
+
+  async function handleQuickAdd() {
+    if (!newName.trim()) return;
+    const account = await createAccount.mutateAsync({ name: newName.trim(), kind: 'conta' });
+    setNewName('');
+    onSelect(account.id);
+  }
+
+  return (
+    <PickerField
+      label="Conta / Cartão"
+      placeholder="Selecione uma conta"
+      value={value}
+      onSelect={onSelect}
+      error={error}
+      options={(accounts ?? []).map((a) => ({ value: a.id, label: a.name }))}
+      footer={
+        <View style={styles.quickAdd}>
+          <TextInput
+            style={styles.input}
+            placeholder="+ Nova conta (ex: Nubank)"
+            value={newName}
+            onChangeText={setNewName}
+          />
+          <Pressable style={styles.addButton} onPress={handleQuickAdd} disabled={createAccount.isPending}>
+            {createAccount.isPending ? (
+              <ActivityIndicator color="#fff" size="small" />
+            ) : (
+              <Text style={styles.addButtonText}>Adicionar</Text>
+            )}
+          </Pressable>
+        </View>
+      }
+    />
+  );
+}
+
+const styles = StyleSheet.create({
+  quickAdd: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    marginTop: Spacing.md,
+    paddingTop: Spacing.md,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: Colors.border,
+  },
+  input: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: 10,
+    paddingHorizontal: Spacing.md,
+    fontSize: 14,
+  },
+  addButton: {
+    backgroundColor: Colors.primary,
+    borderRadius: 10,
+    paddingHorizontal: Spacing.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  addButtonText: { color: '#fff', fontWeight: '600', fontSize: 13 },
+});
