@@ -78,9 +78,52 @@ npx expo start
 ```
 
 - Para testar rapidamente no navegador (útil durante o desenvolvimento): `npm run web`.
-- Para testar no seu celular Android: instale o app **Expo Go** na Play Store, rode
-  `npx expo start --tunnel` e escaneie o QR code que aparece no terminal.
+- Para testar no seu celular Android sem gerar um APK: instale o app **Expo Go** na Play
+  Store, rode `npx expo start --tunnel` e escaneie o QR code que aparece no terminal.
 - Cada amigo pode criar sua própria conta na tela de cadastro do app.
+
+## 5. Gerar o APK (para instalar sem a Play Store)
+
+Se quiser um arquivo `.apk` de verdade para instalar direto no celular (em vez de usar o
+Expo Go), o app usa o [EAS Build](https://docs.expo.dev/build/introduction/), o serviço de
+build em nuvem da própria Expo — o plano gratuito é suficiente. Isso precisa rodar na sua
+máquina (ou em qualquer ambiente com internet normal), não funciona de dentro de um sandbox
+com rede restrita.
+
+1. Instale a CLI da EAS (ou use `npx eas-cli` em cada comando, sem instalar):
+
+   ```bash
+   npm install -g eas-cli
+   ```
+
+2. Faça login com uma conta gratuita da Expo (cria uma em segundos se não tiver):
+
+   ```bash
+   eas login
+   ```
+
+3. Cadastre as variáveis de ambiente do Supabase (as mesmas do `.env`) direto no projeto da
+   EAS, para que o build na nuvem tenha acesso a elas:
+
+   ```bash
+   eas env:create --scope project --name EXPO_PUBLIC_SUPABASE_URL --value "https://seu-projeto.supabase.co" --environment preview --visibility plaintext
+   eas env:create --scope project --name EXPO_PUBLIC_SUPABASE_ANON_KEY --value "sua-anon-key-aqui" --environment preview --visibility sensitive
+   ```
+
+4. Rode o build (perfil `preview`, já configurado em `eas.json` para gerar `.apk` em vez de
+   `.aab`):
+
+   ```bash
+   eas build --platform android --profile preview
+   ```
+
+   Na primeira vez, a EAS vai perguntar se quer criar um projeto vinculado à sua conta —
+   aceite (`Y`). O build roda na nuvem da Expo e leva alguns minutos. Ao final, aparece um
+   link para baixar o `.apk` (a EAS também envia por e-mail).
+
+5. Baixe o `.apk` no celular Android, abra o arquivo e permita "instalar apps de fontes
+   desconhecidas" quando o Android perguntar (é esperado, já que o app não vem da Play
+   Store). Mande o mesmo `.apk` para os seus amigos instalarem também.
 
 ## Estrutura do projeto
 
@@ -97,6 +140,7 @@ src/
 ├── utils/               # Formatação de moeda/data, parcelamento, agregações para gráficos
 └── constants/           # Cores, categorias, formas de pagamento
 supabase/migrations/     # SQL para criar o banco de dados
+eas.json                 # Perfis de build do EAS (gera o .apk)
 ```
 
 ## Testes e verificação
