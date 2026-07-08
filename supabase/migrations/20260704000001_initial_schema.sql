@@ -4,7 +4,7 @@
 create extension if not exists "pgcrypto";
 
 -- Perfil de cada usuário autenticado. Criado automaticamente no signup (trigger abaixo).
-create table public.profiles (
+create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   display_name text not null,
   created_at timestamptz not null default now()
@@ -14,7 +14,7 @@ create table public.profiles (
 -- coluna nullable (ex: household_id) aqui depois, sem quebrar nada do que já existe.
 
 -- Contas/cartões definidos por cada usuário (ex: "Nubank", "Itaú", "Dinheiro").
-create table public.accounts (
+create table if not exists public.accounts (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
   name text not null,
@@ -25,7 +25,7 @@ create table public.accounts (
 );
 
 -- Categorias de transação. user_id nulo = categoria padrão global (visível a todos).
-create table public.categories (
+create table if not exists public.categories (
   id uuid primary key default gen_random_uuid(),
   user_id uuid references auth.users(id) on delete cascade,
   name text not null,
@@ -37,7 +37,7 @@ create table public.categories (
 );
 
 -- Compra original (fonte da verdade). Uma compra parcelada gera N linhas em `transactions`.
-create table public.purchases (
+create table if not exists public.purchases (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
   description text not null,
@@ -55,7 +55,7 @@ create table public.purchases (
 
 -- Uma linha por parcela. category_id/account_id/type são duplicados aqui de propósito
 -- para os gráficos poderem agregar direto, sem precisar de join com `purchases`.
-create table public.transactions (
+create table if not exists public.transactions (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
   purchase_id uuid not null references public.purchases(id) on delete cascade,
@@ -70,14 +70,14 @@ create table public.transactions (
   created_at timestamptz not null default now()
 );
 
-create index transactions_user_due_date_idx on public.transactions (user_id, due_date);
-create index transactions_purchase_idx on public.transactions (purchase_id);
-create index purchases_user_date_idx on public.purchases (user_id, purchase_date);
-create index accounts_user_idx on public.accounts (user_id);
-create index categories_user_idx on public.categories (user_id);
+create index if not exists transactions_user_due_date_idx on public.transactions (user_id, due_date);
+create index if not exists transactions_purchase_idx on public.transactions (purchase_id);
+create index if not exists purchases_user_date_idx on public.purchases (user_id, purchase_date);
+create index if not exists accounts_user_idx on public.accounts (user_id);
+create index if not exists categories_user_idx on public.categories (user_id);
 
 -- Cria automaticamente uma linha em `profiles` quando um novo usuário se cadastra.
-create function public.handle_new_user()
+create or replace function public.handle_new_user()
 returns trigger
 language plpgsql
 security definer
@@ -92,6 +92,8 @@ begin
   return new;
 end;
 $$;
+
+drop trigger if exists on_auth_user_created on auth.users;
 
 create trigger on_auth_user_created
   after insert on auth.users

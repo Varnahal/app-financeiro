@@ -41,6 +41,8 @@ As migrations estão em `supabase/migrations/`, na ordem em que devem ser execut
 
 **Forma mais simples (recomendada):** no painel do Supabase, abra **SQL Editor**, cole o
 conteúdo de cada arquivo (na ordem acima) e clique em **Run**. Repita para os 4 arquivos.
+Os arquivos são seguros para rodar de novo caso algo dê errado no meio do caminho — pode
+colar e rodar de novo sem medo de erros de "já existe".
 
 **Alternativa via CLI**, se preferir versionar as migrations com a CLI do Supabase:
 
