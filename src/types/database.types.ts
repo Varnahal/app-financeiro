@@ -49,6 +49,23 @@ export type Purchase = {
   payment_method: PaymentMethod;
   purchase_date: string;
   num_installments: number;
+  recurring_item_id: string | null;
+  created_at: string;
+};
+
+export type RecurringItem = {
+  id: string;
+  user_id: string;
+  description: string;
+  amount: number;
+  type: TransactionType;
+  category_id: string;
+  account_id: string;
+  payment_method: PaymentMethod;
+  day_of_month: number;
+  start_month: string;
+  end_month: string | null;
+  active: boolean;
   created_at: string;
 };
 
@@ -117,6 +134,13 @@ export type Database = {
         Update: Partial<Transaction>;
         Relationships: [];
       };
+      recurring_items: {
+        Row: RecurringItem;
+        Insert: Omit<RecurringItem, 'id' | 'created_at' | 'start_month' | 'end_month' | 'active'> &
+          Partial<Pick<RecurringItem, 'start_month' | 'end_month' | 'active'>>;
+        Update: Partial<RecurringItem>;
+        Relationships: [];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -125,6 +149,14 @@ export type Database = {
       create_purchase_with_installments: {
         Args: CreatePurchaseParams;
         Returns: string;
+      };
+      materialize_recurring_items: {
+        Args: Record<string, never>;
+        Returns: number;
+      };
+      update_recurring_item_amount: {
+        Args: { p_item_id: string; p_amount: number };
+        Returns: undefined;
       };
     };
   };

@@ -1,4 +1,5 @@
 import { Feather } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import { useState } from 'react';
 import {
   ActivityIndicator,
@@ -140,6 +141,17 @@ export default function PerfilScreen() {
               </Pressable>
             )}
 
+            <Pressable style={styles.menuRow} onPress={() => router.push('/recorrentes')}>
+              <View style={styles.menuIcon}>
+                <Feather name="repeat" size={18} color={Colors.primary} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.menuTitle}>Recorrentes</Text>
+                <Text style={styles.menuSubtitle}>Salário e contas fixas mensais</Text>
+              </View>
+              <Feather name="chevron-right" size={20} color={Colors.textMuted} />
+            </Pressable>
+
             <Pressable style={styles.signOutButton} onPress={handleSignOut}>
               <Feather name="log-out" size={18} color={Colors.danger} />
               <Text style={styles.signOutText}>Sair</Text>
@@ -239,6 +251,24 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   saveButtonText: { color: '#fff', fontWeight: '600' },
+  menuRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.surface,
+    borderRadius: 12,
+    padding: Spacing.md,
+    gap: Spacing.md,
+  },
+  menuIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: '#EAF4FE',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  menuTitle: { fontSize: 15, fontWeight: '600', color: Colors.text },
+  menuSubtitle: { fontSize: 13, color: Colors.textMuted },
   signOutButton: {
     flexDirection: 'row',
     alignItems: 'center',

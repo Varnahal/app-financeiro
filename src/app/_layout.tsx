@@ -29,6 +29,14 @@ function RootNavigator() {
           name="transacao/[id]"
           options={{ presentation: 'modal', headerShown: true, title: 'Transação' }}
         />
+        <Stack.Screen
+          name="recorrentes"
+          options={{ headerShown: true, title: 'Recorrentes' }}
+        />
+        <Stack.Screen
+          name="recorrente/nova"
+          options={{ presentation: 'modal', headerShown: true, title: 'Nova Recorrência' }}
+        />
       </Stack.Protected>
       <Stack.Protected guard={!session}>
         <Stack.Screen name="(auth)" />

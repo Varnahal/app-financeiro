@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, SectionList, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { ExportSheet } from '@/components/ExportSheet';
 import { FilterButton, FilterSheet } from '@/components/FilterSheet';
 import { MonthSelector } from '@/components/MonthSelector';
 import { TransactionListItem } from '@/components/TransactionListItem';
@@ -42,6 +43,7 @@ export default function TransacoesScreen() {
   const [month, setMonth] = useState(new Date());
   const [filters, setFilters] = useState(EMPTY_FILTERS);
   const [filterOpen, setFilterOpen] = useState(false);
+  const [exportOpen, setExportOpen] = useState(false);
   const range = useMemo(() => monthRange(month), [month]);
   const { data: transactions, isLoading } = useTransactions(range);
 
@@ -63,6 +65,9 @@ export default function TransacoesScreen() {
         <View style={{ flex: 1 }}>
           <MonthSelector month={month} onChange={setMonth} />
         </View>
+        <Pressable style={styles.exportButton} onPress={() => setExportOpen(true)}>
+          <Feather name="download" size={20} color={Colors.text} />
+        </Pressable>
         <FilterButton
           activeCount={countActiveFilters(filters)}
           onPress={() => setFilterOpen(true)}
@@ -123,6 +128,12 @@ export default function TransacoesScreen() {
         filters={filters}
         onApply={setFilters}
       />
+
+      <ExportSheet
+        visible={exportOpen}
+        onClose={() => setExportOpen(false)}
+        initialMonth={month}
+      />
     </SafeAreaView>
   );
 }
@@ -134,6 +145,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingRight: Spacing.md,
   },
+  exportButton: { padding: Spacing.sm, borderRadius: 10 },
   summary: {
     paddingHorizontal: Spacing.lg,
     paddingBottom: Spacing.md,

@@ -14,6 +14,12 @@ transações — ninguém vê o que os outros gastam.
 - Aba de Transações (tela inicial) com lista agrupada por dia e o botão **+** para
   adicionar uma nova transação.
 - Aba de Gráficos com despesas por categoria, receita x despesa por mês e saldo mensal.
+- Filtros por categoria, conta e forma de pagamento nas abas de Transações e Gráficos.
+- **Recorrentes** (Perfil > Recorrentes): salário e contas fixas (ex: internet) entram
+  automaticamente todo mês. Ao alterar o valor de uma recorrência, os meses passados são
+  preservados — só o mês atual e os seguintes mudam.
+- **Exportar para Excel** (ícone de download na aba Transações): gera um `.xlsx` de um mês
+  específico ou de um período, com uma aba de transações e uma aba de resumo.
 - Aba de Perfil para cadastrar suas contas/cartões e sair da conta.
 - Tudo em português, com valores em Real (R$).
 
@@ -38,9 +44,10 @@ As migrations estão em `supabase/migrations/`, na ordem em que devem ser execut
 2. `20260704000002_rls_policies.sql` — garante a privacidade (cada um só vê os próprios dados).
 3. `20260704000003_seed_categories.sql` — cria as categorias padrão (Mercado, Transporte, etc).
 4. `20260704000004_create_purchase_rpc.sql` — cria a função que salva compras parceladas.
+5. `20260708000005_recurring_items.sql` — cria as recorrências (salário e contas fixas).
 
 **Forma mais simples (recomendada):** no painel do Supabase, abra **SQL Editor**, cole o
-conteúdo de cada arquivo (na ordem acima) e clique em **Run**. Repita para os 4 arquivos.
+conteúdo de cada arquivo (na ordem acima) e clique em **Run**. Repita para todos os arquivos.
 Os arquivos são seguros para rodar de novo caso algo dê errado no meio do caminho — pode
 colar e rodar de novo sem medo de erros de "já existe".
 

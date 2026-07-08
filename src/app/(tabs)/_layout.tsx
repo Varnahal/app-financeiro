@@ -2,8 +2,13 @@ import { Feather } from '@expo/vector-icons';
 import { Tabs } from 'expo-router/tabs';
 
 import { Colors } from '@/constants/theme';
+import { useMaterializeRecurring } from '@/hooks/useRecurringItems';
 
 export default function TabsLayout() {
+  // Ao abrir o app logado, cria as ocorrências de recorrências (salário,
+  // contas fixas) dos meses que ainda não foram gerados.
+  useMaterializeRecurring();
+
   return (
     <Tabs
       screenOptions={{

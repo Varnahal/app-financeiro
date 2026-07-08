@@ -11,6 +11,21 @@ const TRANSACTION_SELECT = `
   purchase:purchases(payment_method)
 `;
 
+/** Busca avulsa (fora do cache do react-query), usada pela exportação. */
+export async function fetchTransactionsInRange(range: {
+  start: string;
+  end: string;
+}): Promise<TransactionWithRelations[]> {
+  const { data, error } = await supabase
+    .from('transactions')
+    .select(TRANSACTION_SELECT)
+    .gte('due_date', range.start)
+    .lte('due_date', range.end)
+    .order('due_date', { ascending: true });
+  if (error) throw error;
+  return (data as unknown as TransactionWithRelations[]) ?? [];
+}
+
 export function useTransactions(range?: { start: string; end: string }) {
   const { user } = useAuth();
 
