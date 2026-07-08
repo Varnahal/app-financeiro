@@ -46,12 +46,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { error: error ? translateAuthError(error.message) : null };
       },
       async signUp(email, password, displayName) {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: { data: { display_name: displayName } },
         });
-        return { error: error ? translateAuthError(error.message) : null };
+        if (error) return { error: translateAuthError(error.message) };
+        // Com confirmação de e-mail ligada, o Supabase não retorna erro para e-mail
+        // repetido (para não vazar quem está cadastrado) — mas devolve um usuário
+        // sem identities. Detectamos isso para avisar a pessoa de verdade.
+        if (data.user && data.user.identities?.length === 0) {
+          return { error: 'Este e-mail já está cadastrado.' };
+        }
+        return { error: null };
       },
       async signOut() {
         await supabase.auth.signOut();

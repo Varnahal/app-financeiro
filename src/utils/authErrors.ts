@@ -4,6 +4,8 @@ const MESSAGES: Record<string, string> = {
   'Email not confirmed': 'Confirme seu e-mail antes de entrar.',
   'Password should be at least 6 characters': 'A senha deve ter pelo menos 6 caracteres.',
   'Unable to validate email address: invalid format': 'O e-mail informado não é válido.',
+  'Failed to fetch': 'Sem conexão com o servidor. Verifique sua internet.',
+  'Network request failed': 'Sem conexão com o servidor. Verifique sua internet.',
 };
 
 export function translateAuthError(message: string | undefined): string {

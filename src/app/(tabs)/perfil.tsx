@@ -2,7 +2,6 @@ import { Feather } from '@expo/vector-icons';
 import { useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   FlatList,
   Pressable,
   StyleSheet,
@@ -15,6 +14,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Colors, Spacing } from '@/constants/theme';
 import { useAuth } from '@/hooks/useAuth';
 import { useAccounts, useCreateAccount } from '@/hooks/useAccounts';
+import { showAlert, showConfirm } from '@/utils/alert';
 import type { Account, AccountKind } from '@/types/database.types';
 
 const ACCOUNT_KIND_LABELS: Record<AccountKind, string> = {
@@ -51,7 +51,7 @@ export default function PerfilScreen() {
 
   async function handleAddAccount() {
     if (!name.trim()) {
-      Alert.alert('Ops', 'Dê um nome para a conta (ex: Nubank, Dinheiro).');
+      showAlert('Ops', 'Dê um nome para a conta (ex: Nubank, Dinheiro).');
       return;
     }
     try {
@@ -60,15 +60,16 @@ export default function PerfilScreen() {
       setKind('conta');
       setShowForm(false);
     } catch {
-      Alert.alert('Erro', 'Não foi possível criar a conta. Tente novamente.');
+      showAlert('Erro', 'Não foi possível criar a conta. Tente novamente.');
     }
   }
 
-  function handleSignOut() {
-    Alert.alert('Sair', 'Deseja realmente sair da sua conta?', [
-      { text: 'Cancelar', style: 'cancel' },
-      { text: 'Sair', style: 'destructive', onPress: signOut },
-    ]);
+  async function handleSignOut() {
+    const confirmed = await showConfirm('Sair', 'Deseja realmente sair da sua conta?', {
+      confirmText: 'Sair',
+      destructive: true,
+    });
+    if (confirmed) await signOut();
   }
 
   return (

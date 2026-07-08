@@ -1,10 +1,11 @@
 import { Feather } from '@expo/vector-icons';
 import { router, useLocalSearchParams } from 'expo-router';
-import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { getCategoryIcon, PAYMENT_METHOD_LABELS } from '@/constants/categories';
 import { Colors, Spacing } from '@/constants/theme';
 import { useDeletePurchase, useTransaction } from '@/hooks/useTransactions';
+import { showAlert, showConfirm } from '@/utils/alert';
 import { formatCurrency } from '@/utils/currency';
 import { formatDate } from '@/utils/date';
 
@@ -32,26 +33,23 @@ export default function TransacaoDetalheScreen() {
   const isReceita = transaction.type === 'receita';
   const isParcelado = transaction.installments_total > 1;
 
-  function handleDelete() {
+  async function handleDelete() {
     const message = isParcelado
       ? `Isso vai excluir a compra inteira, incluindo todas as ${transaction!.installments_total} parcelas. Deseja continuar?`
       : 'Deseja realmente excluir esta transação?';
 
-    Alert.alert('Excluir transação', message, [
-      { text: 'Cancelar', style: 'cancel' },
-      {
-        text: 'Excluir',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await deletePurchase.mutateAsync(transaction!.purchase_id);
-            router.back();
-          } catch {
-            Alert.alert('Erro', 'Não foi possível excluir. Tente novamente.');
-          }
-        },
-      },
-    ]);
+    const confirmed = await showConfirm('Excluir transação', message, {
+      confirmText: 'Excluir',
+      destructive: true,
+    });
+    if (!confirmed) return;
+
+    try {
+      await deletePurchase.mutateAsync(transaction!.purchase_id);
+      router.back();
+    } catch {
+      showAlert('Erro', 'Não foi possível excluir. Tente novamente.');
+    }
   }
 
   return (

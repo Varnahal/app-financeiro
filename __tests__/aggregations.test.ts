@@ -17,6 +17,7 @@ function makeTx(overrides: Partial<TransactionWithRelations>): TransactionWithRe
     created_at: '2026-01-15T00:00:00Z',
     category: { id: 'cat-1', name: 'Mercado', icon: 'shopping-cart', color: '#f00' },
     account: { id: 'acc-1', name: 'Nubank', kind: 'cartao', color: null },
+    purchase: { payment_method: 'pix' },
     ...overrides,
   };
 }

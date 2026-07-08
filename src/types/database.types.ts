@@ -70,9 +70,6 @@ export type Transaction = {
 export type TransactionWithRelations = Transaction & {
   category: Pick<Category, 'id' | 'name' | 'icon' | 'color'> | null;
   account: Pick<Account, 'id' | 'name' | 'kind' | 'color'> | null;
-};
-
-export type TransactionDetail = TransactionWithRelations & {
   purchase: Pick<Purchase, 'payment_method'> | null;
 };
 

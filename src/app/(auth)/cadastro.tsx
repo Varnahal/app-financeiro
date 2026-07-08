@@ -2,7 +2,6 @@ import { router } from 'expo-router';
 import { useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -22,19 +21,21 @@ export default function CadastroScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit() {
+    setErrorMessage(null);
     if (!name || !email || !password) {
-      Alert.alert('Ops', 'Preencha todos os campos.');
+      setErrorMessage('Preencha todos os campos.');
       return;
     }
     if (password.length < 6) {
-      Alert.alert('Ops', 'A senha deve ter pelo menos 6 caracteres.');
+      setErrorMessage('A senha deve ter pelo menos 6 caracteres.');
       return;
     }
     if (password !== confirmPassword) {
-      Alert.alert('Ops', 'As senhas não coincidem.');
+      setErrorMessage('As senhas não coincidem.');
       return;
     }
 
@@ -43,15 +44,11 @@ export default function CadastroScreen() {
     setLoading(false);
 
     if (error) {
-      Alert.alert('Não foi possível criar sua conta', error);
+      setErrorMessage(error);
       return;
     }
 
-    Alert.alert(
-      'Conta criada!',
-      'Verifique seu e-mail para confirmar o cadastro e depois faça login.',
-      [{ text: 'OK', onPress: () => router.replace('/(auth)/login') }]
-    );
+    router.replace('/(auth)/login?signup=ok');
   }
 
   return (
@@ -109,6 +106,8 @@ export default function CadastroScreen() {
           />
         </View>
 
+        {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
+
         <Pressable
           style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
           onPress={handleSubmit}
@@ -164,6 +163,12 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     fontSize: 16,
     color: Colors.text,
+  },
+  errorText: {
+    color: Colors.danger,
+    fontSize: 13,
+    textAlign: 'center',
+    marginBottom: Spacing.sm,
   },
   button: {
     backgroundColor: Colors.primary,

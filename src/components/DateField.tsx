@@ -39,8 +39,11 @@ export function DateField({ label, value, onChange }: DateFieldProps) {
 
       {Platform.OS === 'ios' && (
         <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
-          <Pressable style={styles.backdrop} onPress={() => setOpen(false)}>
-            <View style={styles.sheet} onStartShouldSetResponder={() => true}>
+          <View style={styles.modalRoot}>
+            <Pressable style={StyleSheet.absoluteFill} onPress={() => setOpen(false)}>
+              <View style={styles.backdropTint} />
+            </Pressable>
+            <View style={styles.sheet}>
               <DateTimePicker
                 value={value}
                 mode="date"
@@ -53,7 +56,7 @@ export function DateField({ label, value, onChange }: DateFieldProps) {
                 <Text style={styles.doneButtonText}>Concluir</Text>
               </Pressable>
             </View>
-          </Pressable>
+          </View>
         </Modal>
       )}
     </View>
@@ -75,7 +78,8 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   value: { fontSize: 16, color: Colors.text },
-  backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
+  modalRoot: { flex: 1, justifyContent: 'flex-end' },
+  backdropTint: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' },
   sheet: { backgroundColor: Colors.surface, borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: Spacing.lg },
   doneButton: { backgroundColor: Colors.primary, borderRadius: 10, paddingVertical: 12, alignItems: 'center', marginTop: Spacing.sm },
   doneButtonText: { color: '#fff', fontWeight: '600' },

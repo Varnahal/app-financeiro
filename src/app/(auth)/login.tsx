@@ -1,8 +1,8 @@
-import { Link } from 'expo-router';
+import { Feather } from '@expo/vector-icons';
+import { Link, useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -18,19 +18,22 @@ import { Colors, Spacing } from '@/constants/theme';
 
 export default function LoginScreen() {
   const { signIn } = useAuth();
+  const { signup } = useLocalSearchParams<{ signup?: string }>();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit() {
+    setErrorMessage(null);
     if (!email || !password) {
-      Alert.alert('Ops', 'Preencha e-mail e senha.');
+      setErrorMessage('Preencha e-mail e senha.');
       return;
     }
     setLoading(true);
     const { error } = await signIn(email.trim(), password);
     setLoading(false);
-    if (error) Alert.alert('Não foi possível entrar', error);
+    if (error) setErrorMessage(error);
   }
 
   return (
@@ -41,6 +44,15 @@ export default function LoginScreen() {
       <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
         <Text style={styles.title}>Buffa Finance</Text>
         <Text style={styles.subtitle}>Entre para registrar suas transações</Text>
+
+        {signup === 'ok' && (
+          <View style={styles.successBanner}>
+            <Feather name="mail" size={18} color={Colors.success} />
+            <Text style={styles.successText}>
+              Conta criada! Verifique seu e-mail para confirmar o cadastro antes de entrar.
+            </Text>
+          </View>
+        )}
 
         <View style={styles.field}>
           <Text style={styles.label}>E-mail</Text>
@@ -66,6 +78,8 @@ export default function LoginScreen() {
             placeholder="••••••••"
           />
         </View>
+
+        {errorMessage && <Text style={styles.errorText}>{errorMessage}</Text>}
 
         <Pressable
           style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
@@ -110,6 +124,18 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: Spacing.lg,
   },
+  successBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    backgroundColor: '#E7F7EC',
+    borderWidth: 1,
+    borderColor: Colors.success,
+    borderRadius: 12,
+    padding: Spacing.md,
+    marginBottom: Spacing.md,
+  },
+  successText: { flex: 1, color: '#14532D', fontSize: 14 },
   field: { marginBottom: Spacing.md },
   label: {
     fontSize: 13,
@@ -125,6 +151,12 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     fontSize: 16,
     color: Colors.text,
+  },
+  errorText: {
+    color: Colors.danger,
+    fontSize: 13,
+    textAlign: 'center',
+    marginBottom: Spacing.sm,
   },
   button: {
     backgroundColor: Colors.primary,

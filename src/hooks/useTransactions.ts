@@ -2,20 +2,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
-import type {
-  CreatePurchaseParams,
-  TransactionDetail,
-  TransactionWithRelations,
-} from '@/types/database.types';
+import type { CreatePurchaseParams, TransactionWithRelations } from '@/types/database.types';
 
 const TRANSACTION_SELECT = `
   *,
   category:categories(id, name, icon, color),
-  account:accounts(id, name, kind, color)
-`;
-
-const TRANSACTION_DETAIL_SELECT = `
-  ${TRANSACTION_SELECT},
+  account:accounts(id, name, kind, color),
   purchase:purchases(payment_method)
 `;
 
@@ -49,14 +41,14 @@ export function useTransaction(id: string | undefined) {
   return useQuery({
     queryKey: ['transaction', id],
     enabled: !!user && !!id,
-    queryFn: async (): Promise<TransactionDetail | null> => {
+    queryFn: async (): Promise<TransactionWithRelations | null> => {
       const { data, error } = await supabase
         .from('transactions')
-        .select(TRANSACTION_DETAIL_SELECT)
+        .select(TRANSACTION_SELECT)
         .eq('id', id as string)
         .maybeSingle();
       if (error) throw error;
-      return data as unknown as TransactionDetail | null;
+      return data as unknown as TransactionWithRelations | null;
     },
   });
 }

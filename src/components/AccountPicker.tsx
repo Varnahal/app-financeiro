@@ -4,6 +4,7 @@ import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 
 import { PickerField } from '@/components/PickerField';
 import { Colors, Spacing } from '@/constants/theme';
 import { useAccounts, useCreateAccount } from '@/hooks/useAccounts';
+import { showAlert } from '@/utils/alert';
 
 interface AccountPickerProps {
   value: string | null;
@@ -16,11 +17,16 @@ export function AccountPicker({ value, onSelect, error }: AccountPickerProps) {
   const createAccount = useCreateAccount();
   const [newName, setNewName] = useState('');
 
-  async function handleQuickAdd() {
+  async function handleQuickAdd(close: () => void) {
     if (!newName.trim()) return;
-    const account = await createAccount.mutateAsync({ name: newName.trim(), kind: 'conta' });
-    setNewName('');
-    onSelect(account.id);
+    try {
+      const account = await createAccount.mutateAsync({ name: newName.trim(), kind: 'conta' });
+      setNewName('');
+      onSelect(account.id);
+      close();
+    } catch {
+      showAlert('Erro', 'Não foi possível criar a conta. Tente novamente.');
+    }
   }
 
   return (
@@ -31,7 +37,7 @@ export function AccountPicker({ value, onSelect, error }: AccountPickerProps) {
       onSelect={onSelect}
       error={error}
       options={(accounts ?? []).map((a) => ({ value: a.id, label: a.name }))}
-      footer={
+      footer={(close) => (
         <View style={styles.quickAdd}>
           <TextInput
             style={styles.input}
@@ -39,7 +45,11 @@ export function AccountPicker({ value, onSelect, error }: AccountPickerProps) {
             value={newName}
             onChangeText={setNewName}
           />
-          <Pressable style={styles.addButton} onPress={handleQuickAdd} disabled={createAccount.isPending}>
+          <Pressable
+            style={styles.addButton}
+            onPress={() => handleQuickAdd(close)}
+            disabled={createAccount.isPending}
+          >
             {createAccount.isPending ? (
               <ActivityIndicator color="#fff" size="small" />
             ) : (
@@ -47,7 +57,7 @@ export function AccountPicker({ value, onSelect, error }: AccountPickerProps) {
             )}
           </Pressable>
         </View>
-      }
+      )}
     />
   );
 }

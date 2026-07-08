@@ -1,6 +1,15 @@
 import { Feather } from '@expo/vector-icons';
 import { useState, type ComponentProps, type ReactNode } from 'react';
-import { FlatList, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import {
+  FlatList,
+  KeyboardAvoidingView,
+  Modal,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 
 import { Colors, Spacing } from '@/constants/theme';
 
@@ -17,7 +26,8 @@ interface PickerFieldProps {
   options: PickerOption[];
   onSelect: (value: string) => void;
   error?: string;
-  footer?: ReactNode;
+  /** Conteúdo extra no rodapé do sheet; recebe uma função para fechar o sheet. */
+  footer?: (close: () => void) => ReactNode;
 }
 
 export function PickerField({
@@ -31,6 +41,7 @@ export function PickerField({
 }: PickerFieldProps) {
   const [open, setOpen] = useState(false);
   const selected = options.find((o) => o.value === value);
+  const close = () => setOpen(false);
 
   return (
     <View style={styles.field}>
@@ -47,9 +58,17 @@ export function PickerField({
       </Pressable>
       {error && <Text style={styles.errorText}>{error}</Text>}
 
-      <Modal visible={open} animationType="slide" transparent onRequestClose={() => setOpen(false)}>
-        <Pressable style={styles.backdrop} onPress={() => setOpen(false)}>
-          <View style={styles.sheet} onStartShouldSetResponder={() => true}>
+      <Modal visible={open} animationType="slide" transparent onRequestClose={close}>
+        <KeyboardAvoidingView
+          style={styles.modalRoot}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
+          {/* Backdrop e sheet são irmãos (não pai/filho): cliques dentro do sheet
+              nunca chegam ao backdrop, em qualquer plataforma (inclusive web). */}
+          <Pressable style={StyleSheet.absoluteFill} onPress={close}>
+            <View style={styles.backdropTint} />
+          </Pressable>
+          <View style={styles.sheet}>
             <Text style={styles.sheetTitle}>{label}</Text>
             <FlatList
               data={options}
@@ -59,7 +78,7 @@ export function PickerField({
                   style={styles.option}
                   onPress={() => {
                     onSelect(item.value);
-                    setOpen(false);
+                    close();
                   }}
                 >
                   {item.icon && <Feather name={item.icon} size={18} color={Colors.text} />}
@@ -71,9 +90,9 @@ export function PickerField({
               )}
               style={{ maxHeight: 360 }}
             />
-            {footer}
+            {footer?.(close)}
           </View>
-        </Pressable>
+        </KeyboardAvoidingView>
       </Modal>
     </View>
   );
@@ -97,7 +116,8 @@ const styles = StyleSheet.create({
   value: { flex: 1, fontSize: 16, color: Colors.text },
   placeholder: { color: Colors.textMuted },
   errorText: { color: Colors.danger, fontSize: 12, marginTop: 4 },
-  backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
+  modalRoot: { flex: 1, justifyContent: 'flex-end' },
+  backdropTint: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' },
   sheet: {
     backgroundColor: Colors.surface,
     borderTopLeftRadius: 20,

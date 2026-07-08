@@ -4,17 +4,31 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Colors, Spacing } from '@/constants/theme';
 import type { MonthlyTotal } from '@/utils/aggregations';
 
+const Y_AXIS_LABEL_WIDTH = 35;
+const PAIR_SPACING = 2; // entre as duas barras do mesmo mês
+const GROUP_SPACING = 12; // entre meses
+const EDGE_SPACING = 8;
+
 interface IncomeVsExpenseChartProps {
   months: MonthlyTotal[];
+  availableWidth: number;
 }
 
-export function IncomeVsExpenseChart({ months }: IncomeVsExpenseChartProps) {
+export function IncomeVsExpenseChart({ months, availableWidth }: IncomeVsExpenseChartProps) {
+  const chartWidth = availableWidth - Y_AXIS_LABEL_WIDTH;
+  const n = Math.max(1, months.length);
+  // Largura de barra calculada para o conjunto caber exatamente na tela, sem scroll.
+  const barWidth = Math.max(
+    6,
+    Math.floor((chartWidth - 2 * EDGE_SPACING - n * PAIR_SPACING - (n - 1) * GROUP_SPACING) / (2 * n))
+  );
+
   const data: barDataItem[] = months.flatMap((m) => [
     {
       value: m.receita,
       label: m.label,
-      spacing: 2,
-      labelWidth: 36,
+      spacing: PAIR_SPACING,
+      labelWidth: 2 * barWidth + PAIR_SPACING,
       labelTextStyle: { color: Colors.textMuted, fontSize: 10 },
       frontColor: Colors.success,
     },
@@ -29,8 +43,13 @@ export function IncomeVsExpenseChart({ months }: IncomeVsExpenseChartProps) {
       </View>
       <BarChart
         data={data}
-        barWidth={14}
-        spacing={20}
+        width={chartWidth}
+        yAxisLabelWidth={Y_AXIS_LABEL_WIDTH}
+        barWidth={barWidth}
+        spacing={GROUP_SPACING}
+        initialSpacing={EDGE_SPACING}
+        endSpacing={EDGE_SPACING}
+        disableScroll
         roundedTop
         noOfSections={4}
         yAxisTextStyle={{ color: Colors.textMuted, fontSize: 10 }}

@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router } from 'expo-router';
 import { Controller, useForm } from 'react-hook-form';
-import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { z } from 'zod';
 
 import { AccountPicker } from '@/components/AccountPicker';
@@ -11,6 +11,7 @@ import { InstallmentInput } from '@/components/InstallmentInput';
 import { PaymentMethodPicker } from '@/components/PaymentMethodPicker';
 import { Colors, Spacing } from '@/constants/theme';
 import { useCreatePurchase } from '@/hooks/useTransactions';
+import { showAlert } from '@/utils/alert';
 import { parseCurrencyInput } from '@/utils/currency';
 import { toISODate } from '@/utils/date';
 import type { PaymentMethod, TransactionType } from '@/types/database.types';
@@ -80,7 +81,7 @@ export function TransactionForm() {
       });
       router.back();
     } catch {
-      Alert.alert('Erro', 'Não foi possível salvar a transação. Tente novamente.');
+      showAlert('Erro', 'Não foi possível salvar a transação. Tente novamente.');
     }
   }
 

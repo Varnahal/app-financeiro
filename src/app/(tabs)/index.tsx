@@ -4,12 +4,14 @@ import { useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, SectionList, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { FilterButton, FilterSheet } from '@/components/FilterSheet';
 import { MonthSelector } from '@/components/MonthSelector';
 import { TransactionListItem } from '@/components/TransactionListItem';
 import { Colors, Spacing } from '@/constants/theme';
 import { useTransactions } from '@/hooks/useTransactions';
 import { formatCurrency } from '@/utils/currency';
 import { formatDayHeader, monthRange } from '@/utils/date';
+import { applyTransactionFilters, countActiveFilters, EMPTY_FILTERS } from '@/utils/filters';
 import type { TransactionWithRelations } from '@/types/database.types';
 
 interface Section {
@@ -38,23 +40,34 @@ function groupByDay(transactions: TransactionWithRelations[]): Section[] {
 
 export default function TransacoesScreen() {
   const [month, setMonth] = useState(new Date());
+  const [filters, setFilters] = useState(EMPTY_FILTERS);
+  const [filterOpen, setFilterOpen] = useState(false);
   const range = useMemo(() => monthRange(month), [month]);
   const { data: transactions, isLoading } = useTransactions(range);
 
-  const sections = useMemo(() => groupByDay(transactions ?? []), [transactions]);
+  const filtered = useMemo(
+    () => applyTransactionFilters(transactions ?? [], filters),
+    [transactions, filters]
+  );
+
+  const sections = useMemo(() => groupByDay(filtered), [filtered]);
 
   const monthTotal = useMemo(
-    () =>
-      (transactions ?? []).reduce(
-        (sum, tx) => sum + (tx.type === 'receita' ? tx.amount : -tx.amount),
-        0
-      ),
-    [transactions]
+    () => filtered.reduce((sum, tx) => sum + (tx.type === 'receita' ? tx.amount : -tx.amount), 0),
+    [filtered]
   );
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <MonthSelector month={month} onChange={setMonth} />
+      <View style={styles.toolbar}>
+        <View style={{ flex: 1 }}>
+          <MonthSelector month={month} onChange={setMonth} />
+        </View>
+        <FilterButton
+          activeCount={countActiveFilters(filters)}
+          onPress={() => setFilterOpen(true)}
+        />
+      </View>
 
       <View style={styles.summary}>
         <Text style={styles.summaryLabel}>Saldo do mês</Text>
@@ -91,7 +104,9 @@ export default function TransacoesScreen() {
             <View style={styles.empty}>
               <Feather name="inbox" size={32} color={Colors.textMuted} />
               <Text style={styles.emptyText}>
-                Nenhuma transação neste mês. Toque no + para adicionar a primeira.
+                {countActiveFilters(filters) > 0
+                  ? 'Nenhuma transação encontrada com os filtros atuais.'
+                  : 'Nenhuma transação neste mês. Toque no + para adicionar a primeira.'}
               </Text>
             </View>
           }
@@ -101,12 +116,24 @@ export default function TransacoesScreen() {
       <Pressable style={styles.fab} onPress={() => router.push('/transacao/nova')}>
         <Feather name="plus" size={26} color="#fff" />
       </Pressable>
+
+      <FilterSheet
+        visible={filterOpen}
+        onClose={() => setFilterOpen(false)}
+        filters={filters}
+        onApply={setFilters}
+      />
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
+  toolbar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingRight: Spacing.md,
+  },
   summary: {
     paddingHorizontal: Spacing.lg,
     paddingBottom: Spacing.md,

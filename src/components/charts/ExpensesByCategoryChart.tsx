@@ -9,10 +9,13 @@ const PALETTE = ['#208AEF', '#F97316', '#16A34A', '#DC2626', '#9333EA', '#0EA5E9
 
 interface ExpensesByCategoryChartProps {
   categories: CategoryTotal[];
+  availableWidth: number;
 }
 
-export function ExpensesByCategoryChart({ categories }: ExpensesByCategoryChartProps) {
+export function ExpensesByCategoryChart({ categories, availableWidth }: ExpensesByCategoryChartProps) {
   const total = categories.reduce((sum, c) => sum + c.total, 0);
+  const radius = Math.min(90, Math.floor(availableWidth / 2) - 10);
+  const innerRadius = Math.round(radius * 0.61);
 
   if (categories.length === 0 || total === 0) {
     return (
@@ -34,8 +37,8 @@ export function ExpensesByCategoryChart({ categories }: ExpensesByCategoryChartP
         <PieChart
           data={data}
           donut
-          radius={90}
-          innerRadius={55}
+          radius={radius}
+          innerRadius={innerRadius}
           centerLabelComponent={() => (
             <View style={styles.centerLabel}>
               <Text style={styles.centerLabelValue}>{formatCurrency(total)}</Text>
