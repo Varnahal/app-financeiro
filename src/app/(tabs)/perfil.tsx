@@ -4,6 +4,7 @@ import { useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
+  Modal,
   Pressable,
   StyleSheet,
   Text,
@@ -14,7 +15,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Colors, Spacing } from '@/constants/theme';
 import { useAuth } from '@/hooks/useAuth';
-import { useAccounts, useCreateAccount } from '@/hooks/useAccounts';
+import {
+  useAccounts,
+  useCreateAccount,
+  useDeleteAccount,
+  useRenameAccount,
+} from '@/hooks/useAccounts';
 import { showAlert, showConfirm } from '@/utils/alert';
 import type { Account, AccountKind } from '@/types/database.types';
 
@@ -27,7 +33,23 @@ const ACCOUNT_KIND_LABELS: Record<AccountKind, string> = {
 
 const ACCOUNT_KINDS: AccountKind[] = ['conta', 'cartao', 'dinheiro', 'outro'];
 
-function AccountRow({ account }: { account: Account }) {
+function AccountRow({ account, onRename }: { account: Account; onRename: () => void }) {
+  const deleteAccount = useDeleteAccount();
+
+  async function handleDelete() {
+    const confirmed = await showConfirm(
+      'Excluir conta',
+      `"${account.name}" vai sumir da lista e dos formulários, mas as transações já registradas continuam mostrando o nome dela. Deseja excluir?`,
+      { confirmText: 'Excluir', destructive: true }
+    );
+    if (!confirmed) return;
+    try {
+      await deleteAccount.mutateAsync(account.id);
+    } catch {
+      showAlert('Erro', 'Não foi possível excluir a conta. Tente novamente.');
+    }
+  }
+
   return (
     <View style={styles.accountRow}>
       <View style={styles.accountIcon}>
@@ -37,6 +59,22 @@ function AccountRow({ account }: { account: Account }) {
         <Text style={styles.accountName}>{account.name}</Text>
         <Text style={styles.accountKind}>{ACCOUNT_KIND_LABELS[account.kind]}</Text>
       </View>
+      <View style={styles.accountActions}>
+        <Pressable style={styles.accountActionButton} onPress={onRename}>
+          <Feather name="edit-2" size={16} color={Colors.primary} />
+        </Pressable>
+        <Pressable
+          style={styles.accountActionButton}
+          onPress={handleDelete}
+          disabled={deleteAccount.isPending}
+        >
+          {deleteAccount.isPending ? (
+            <ActivityIndicator size="small" color={Colors.danger} />
+          ) : (
+            <Feather name="trash-2" size={16} color={Colors.danger} />
+          )}
+        </Pressable>
+      </View>
     </View>
   );
 }
@@ -45,10 +83,32 @@ export default function PerfilScreen() {
   const { user, signOut } = useAuth();
   const { data: accounts, isLoading } = useAccounts();
   const createAccount = useCreateAccount();
+  const renameAccount = useRenameAccount();
 
   const [showForm, setShowForm] = useState(false);
   const [name, setName] = useState('');
   const [kind, setKind] = useState<AccountKind>('conta');
+  const [renaming, setRenaming] = useState<Account | null>(null);
+  const [renameText, setRenameText] = useState('');
+
+  function openRename(account: Account) {
+    setRenaming(account);
+    setRenameText(account.name);
+  }
+
+  async function handleSaveRename() {
+    if (!renaming) return;
+    if (!renameText.trim()) {
+      showAlert('Ops', 'O nome não pode ficar vazio.');
+      return;
+    }
+    try {
+      await renameAccount.mutateAsync({ accountId: renaming.id, name: renameText.trim() });
+      setRenaming(null);
+    } catch {
+      showAlert('Erro', 'Não foi possível renomear a conta. Tente novamente.');
+    }
+  }
 
   async function handleAddAccount() {
     if (!name.trim()) {
@@ -78,7 +138,9 @@ export default function PerfilScreen() {
       <FlatList
         data={accounts ?? []}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <AccountRow account={item} />}
+        renderItem={({ item }) => (
+          <AccountRow account={item} onRename={() => openRename(item)} />
+        )}
         ListHeaderComponent={
           <View>
             <View style={styles.header}>
@@ -160,6 +222,43 @@ export default function PerfilScreen() {
         }
         contentContainerStyle={styles.listContent}
       />
+
+      <Modal
+        visible={!!renaming}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setRenaming(null)}
+      >
+        <View style={styles.modalRoot}>
+          <Pressable style={StyleSheet.absoluteFill} onPress={() => setRenaming(null)}>
+            <View style={styles.backdropTint} />
+          </Pressable>
+          <View style={styles.sheet}>
+            <Text style={styles.sheetTitle}>Renomear conta</Text>
+            <Text style={styles.sheetHint}>
+              O novo nome vale para tudo, inclusive para as transações já registradas.
+            </Text>
+            <TextInput
+              style={styles.sheetInput}
+              value={renameText}
+              onChangeText={setRenameText}
+              placeholder="Nome da conta"
+              autoFocus
+            />
+            <Pressable
+              style={styles.saveButton}
+              onPress={handleSaveRename}
+              disabled={renameAccount.isPending}
+            >
+              {renameAccount.isPending ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.saveButtonText}>Salvar nome</Text>
+              )}
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }
@@ -205,6 +304,29 @@ const styles = StyleSheet.create({
   },
   accountName: { fontSize: 15, fontWeight: '600', color: Colors.text },
   accountKind: { fontSize: 13, color: Colors.textMuted },
+  accountActions: { flexDirection: 'row', gap: Spacing.sm },
+  accountActionButton: { padding: 6 },
+  modalRoot: { flex: 1, justifyContent: 'flex-end' },
+  backdropTint: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' },
+  sheet: {
+    backgroundColor: Colors.surface,
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: Spacing.lg,
+  },
+  sheetTitle: { fontSize: 16, fontWeight: '700', color: Colors.text },
+  sheetHint: { color: Colors.textMuted, fontSize: 13, marginTop: 4, marginBottom: Spacing.md },
+  sheetInput: {
+    backgroundColor: Colors.background,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: 12,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 12,
+    fontSize: 16,
+    color: Colors.text,
+    marginBottom: Spacing.md,
+  },
   footer: { marginTop: Spacing.md, gap: Spacing.md },
   addButton: {
     flexDirection: 'row',

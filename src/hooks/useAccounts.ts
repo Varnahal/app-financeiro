@@ -42,3 +42,51 @@ export function useCreateAccount() {
     },
   });
 }
+
+export function useRenameAccount() {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async ({ accountId, name }: { accountId: string; name: string }) => {
+      const { error } = await supabase.from('accounts').update({ name }).eq('id', accountId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['accounts', user?.id] });
+      // O nome aparece nas linhas de transação (join), então recarrega elas também.
+      queryClient.invalidateQueries({ queryKey: ['transactions', user?.id] });
+    },
+  });
+}
+
+/**
+ * "Exclui" uma conta preservando o histórico: se nenhuma transação/recorrência
+ * referencia a conta, apaga de verdade; senão, arquiva (some dos seletores e
+ * da lista, mas as transações antigas continuam mostrando o nome dela).
+ */
+export function useDeleteAccount() {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (accountId: string) => {
+      const { error } = await supabase.from('accounts').delete().eq('id', accountId);
+      if (!error) return;
+      // 23503 = violação de chave estrangeira: a conta tem transações,
+      // compras ou recorrências apontando para ela — arquiva em vez de apagar.
+      if (error.code === '23503') {
+        const { error: archiveError } = await supabase
+          .from('accounts')
+          .update({ archived: true })
+          .eq('id', accountId);
+        if (archiveError) throw archiveError;
+        return;
+      }
+      throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['accounts', user?.id] });
+    },
+  });
+}
