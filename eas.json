@@ -8,12 +8,20 @@
       "distribution": "internal",
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://bcuucbkbwwsvvclounue.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJjdXVjYmtid3dzdnZjbG91bnVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5MTMyODYsImV4cCI6MjA5NTQ4OTI4Nn0.kyKx8wOhdT6-ul1207YKhw0cRW8Ggm1cks1291xt1yg"
       }
     },
     "production": {
       "autoIncrement": true,
       "android": {
         "buildType": "app-bundle"
+      },
+      "env": {
+        "EXPO_PUBLIC_SUPABASE_URL": "https://bcuucbkbwwsvvclounue.supabase.co",
+        "EXPO_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJjdXVjYmtid3dzdnZjbG91bnVlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk5MTMyODYsImV4cCI6MjA5NTQ4OTI4Nn0.kyKx8wOhdT6-ul1207YKhw0cRW8Ggm1cks1291xt1yg"
       }
     }
   },

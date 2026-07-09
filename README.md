@@ -111,15 +111,7 @@ com rede restrita.
    eas login
    ```
 
-3. Cadastre as variáveis de ambiente do Supabase (as mesmas do `.env`) direto no projeto da
-   EAS, para que o build na nuvem tenha acesso a elas:
-
-   ```bash
-   eas env:create --scope project --name EXPO_PUBLIC_SUPABASE_URL --value "https://seu-projeto.supabase.co" --environment preview --visibility plaintext
-   eas env:create --scope project --name EXPO_PUBLIC_SUPABASE_ANON_KEY --value "sua-anon-key-aqui" --environment preview --visibility sensitive
-   ```
-
-4. Rode o build (perfil `preview`, já configurado em `eas.json` para gerar `.apk` em vez de
+3. Rode o build (perfil `preview`, já configurado em `eas.json` para gerar `.apk` em vez de
    `.aab`):
 
    ```bash
@@ -129,6 +121,12 @@ com rede restrita.
    Na primeira vez, a EAS vai perguntar se quer criar um projeto vinculado à sua conta —
    aceite (`Y`). O build roda na nuvem da Expo e leva alguns minutos. Ao final, aparece um
    link para baixar o `.apk` (a EAS também envia por e-mail).
+
+As variáveis do Supabase já estão no `eas.json` (bloco `env` de cada perfil), então o build
+da nuvem as embute automaticamente — não precisa configurar mais nada. A EAS **não** envia o
+arquivo `.env` local para o build (ele é ignorado pelo `.gitignore`); por isso as variáveis
+ficam no `eas.json`. A "anon key" é feita para ser pública (vai dentro do app de qualquer
+jeito), então tê-la aqui não é problema — a segurança dos dados vem das políticas de RLS.
 
 5. Baixe o `.apk` no celular Android, abra o arquivo e permita "instalar apps de fontes
    desconhecidas" quando o Android perguntar (é esperado, já que o app não vem da Play
