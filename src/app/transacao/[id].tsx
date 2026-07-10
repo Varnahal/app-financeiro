@@ -84,6 +84,14 @@ export default function TransacaoDetalheScreen() {
         )}
       </View>
 
+      <Pressable
+        style={styles.editButton}
+        onPress={() => router.push(`/transacao/editar/${transaction.id}`)}
+      >
+        <Feather name="edit-2" size={18} color="#fff" />
+        <Text style={styles.editButtonText}>Editar</Text>
+      </Pressable>
+
       <Pressable style={styles.deleteButton} onPress={handleDelete} disabled={deletePurchase.isPending}>
         {deletePurchase.isPending ? (
           <ActivityIndicator color={Colors.danger} />
@@ -141,11 +149,24 @@ const styles = StyleSheet.create({
   },
   detailLabel: { color: Colors.textMuted, fontSize: 14 },
   detailValue: { color: Colors.text, fontSize: 14, fontWeight: '600' },
+  editButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.sm,
+    marginTop: Spacing.xl,
+    paddingVertical: 14,
+    paddingHorizontal: Spacing.lg,
+    backgroundColor: Colors.primary,
+    borderRadius: 12,
+    alignSelf: 'stretch',
+  },
+  editButtonText: { color: '#fff', fontWeight: '700', fontSize: 15 },
   deleteButton: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.sm,
-    marginTop: Spacing.xl,
+    marginTop: Spacing.md,
     paddingVertical: 12,
     paddingHorizontal: Spacing.lg,
   },

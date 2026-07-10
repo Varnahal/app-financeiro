@@ -17,7 +17,14 @@ function makeTx(overrides: Partial<TransactionWithRelations>): TransactionWithRe
     created_at: '2026-01-15T00:00:00Z',
     category: { id: 'cat-1', name: 'Mercado', icon: null, color: null },
     account: { id: 'acc-1', name: 'Nubank', kind: 'cartao', color: null },
-    purchase: { payment_method: 'pix' },
+    purchase: {
+      payment_method: 'pix',
+      description: 'Mercado do mês',
+      purchase_date: '2026-01-15',
+      num_installments: 1,
+      total_amount: 100,
+      recurring_item_id: null,
+    },
     ...overrides,
   };
 }

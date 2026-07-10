@@ -2,13 +2,17 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/lib/supabase';
-import type { CreatePurchaseParams, TransactionWithRelations } from '@/types/database.types';
+import type {
+  CreatePurchaseParams,
+  TransactionWithRelations,
+  UpdatePurchaseParams,
+} from '@/types/database.types';
 
 const TRANSACTION_SELECT = `
   *,
   category:categories(id, name, icon, color),
   account:accounts(id, name, kind, color),
-  purchase:purchases(payment_method)
+  purchase:purchases(payment_method, description, purchase_date, num_installments, total_amount, recurring_item_id)
 `;
 
 /** Busca avulsa (fora do cache do react-query), usada pela exportação. */
@@ -80,6 +84,22 @@ export function useCreatePurchase() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['transactions', user?.id] });
+    },
+  });
+}
+
+export function useUpdatePurchase() {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (params: UpdatePurchaseParams) => {
+      const { error } = await supabase.rpc('update_purchase_fields', params);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['transactions', user?.id] });
+      queryClient.invalidateQueries({ queryKey: ['transaction'] });
     },
   });
 }

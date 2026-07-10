@@ -30,6 +30,10 @@ function RootNavigator() {
           options={{ presentation: 'modal', headerShown: true, title: 'Transação' }}
         />
         <Stack.Screen
+          name="transacao/editar/[id]"
+          options={{ presentation: 'modal', headerShown: true, title: 'Editar Transação' }}
+        />
+        <Stack.Screen
           name="recorrentes"
           options={{ headerShown: true, title: 'Recorrentes' }}
         />

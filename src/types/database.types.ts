@@ -87,7 +87,10 @@ export type Transaction = {
 export type TransactionWithRelations = Transaction & {
   category: Pick<Category, 'id' | 'name' | 'icon' | 'color'> | null;
   account: Pick<Account, 'id' | 'name' | 'kind' | 'color'> | null;
-  purchase: Pick<Purchase, 'payment_method'> | null;
+  purchase: Pick<
+    Purchase,
+    'payment_method' | 'description' | 'purchase_date' | 'num_installments' | 'total_amount' | 'recurring_item_id'
+  > | null;
 };
 
 export type CreatePurchaseParams = {
@@ -99,6 +102,17 @@ export type CreatePurchaseParams = {
   p_payment_method: PaymentMethod;
   p_purchase_date: string;
   p_num_installments: number;
+};
+
+export type UpdatePurchaseParams = {
+  p_purchase_id: string;
+  p_description: string;
+  p_total_amount: number;
+  p_type: TransactionType;
+  p_category_id: string;
+  p_account_id: string;
+  p_payment_method: PaymentMethod;
+  p_purchase_date: string;
 };
 
 export type Database = {
@@ -149,6 +163,10 @@ export type Database = {
       create_purchase_with_installments: {
         Args: CreatePurchaseParams;
         Returns: string;
+      };
+      update_purchase_fields: {
+        Args: UpdatePurchaseParams;
+        Returns: undefined;
       };
       materialize_recurring_items: {
         Args: Record<string, never>;

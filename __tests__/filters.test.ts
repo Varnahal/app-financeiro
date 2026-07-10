@@ -4,7 +4,18 @@ import {
   EMPTY_FILTERS,
   type TransactionFilters,
 } from '@/utils/filters';
-import type { TransactionWithRelations } from '@/types/database.types';
+import type { PaymentMethod, TransactionWithRelations } from '@/types/database.types';
+
+function pur(payment_method: PaymentMethod): TransactionWithRelations['purchase'] {
+  return {
+    payment_method,
+    description: 'Teste',
+    purchase_date: '2026-01-15',
+    num_installments: 1,
+    total_amount: 100,
+    recurring_item_id: null,
+  };
+}
 
 function makeTx(overrides: Partial<TransactionWithRelations>): TransactionWithRelations {
   return {
@@ -22,7 +33,7 @@ function makeTx(overrides: Partial<TransactionWithRelations>): TransactionWithRe
     created_at: '2026-01-15T00:00:00Z',
     category: { id: 'cat-1', name: 'Mercado', icon: null, color: null },
     account: { id: 'acc-1', name: 'Nubank', kind: 'cartao', color: null },
-    purchase: { payment_method: 'pix' },
+    purchase: pur('pix'),
     ...overrides,
   };
 }
@@ -58,12 +69,12 @@ describe('applyTransactionFilters', () => {
 
   it('dimensões diferentes combinam como E', () => {
     const txs = [
-      makeTx({ id: 'a', purchase: { payment_method: 'cartao_credito' } }),
+      makeTx({ id: 'a', purchase: pur('cartao_credito') }),
       makeTx({ id: 'b' }), // categoria certa, pagamento errado (pix)
       makeTx({
         id: 'c',
         category: { id: 'cat-2', name: 'Lazer', icon: null, color: null },
-        purchase: { payment_method: 'cartao_credito' },
+        purchase: pur('cartao_credito'),
       }), // pagamento certo, categoria errada
     ];
     const result = applyTransactionFilters(

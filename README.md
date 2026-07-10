@@ -12,7 +12,8 @@ transações — ninguém vê o que os outros gastam.
 - Compras no cartão de crédito podem ser parceladas — o app divide o valor automaticamente
   entre os próximos meses.
 - Aba de Transações (tela inicial) com lista agrupada por dia e o botão **+** para
-  adicionar uma nova transação.
+  adicionar uma nova transação. Tocando numa transação dá para vê-la, **editá-la** ou
+  excluí-la.
 - Aba de Gráficos com despesas por categoria, receita x despesa por mês e saldo mensal.
 - Filtros por categoria, conta e forma de pagamento nas abas de Transações e Gráficos.
 - **Recorrentes** (Perfil > Recorrentes): salário e contas fixas (ex: internet) entram
@@ -45,6 +46,7 @@ As migrations estão em `supabase/migrations/`, na ordem em que devem ser execut
 3. `20260704000003_seed_categories.sql` — cria as categorias padrão (Mercado, Transporte, etc).
 4. `20260704000004_create_purchase_rpc.sql` — cria a função que salva compras parceladas.
 5. `20260708000005_recurring_items.sql` — cria as recorrências (salário e contas fixas).
+6. `20260710000006_update_purchase_fields.sql` — permite editar transações já registradas.
 
 **Forma mais simples (recomendada):** no painel do Supabase, abra **SQL Editor**, cole o
 conteúdo de cada arquivo (na ordem acima) e clique em **Run**. Repita para todos os arquivos.
