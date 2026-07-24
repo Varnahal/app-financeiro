@@ -134,6 +134,37 @@ jeito), então tê-la aqui não é problema — a segurança dos dados vem das p
    desconhecidas" quando o Android perguntar (é esperado, já que o app não vem da Play
    Store). Mande o mesmo `.apk` para os seus amigos instalarem também.
 
+## 6. Versão web (hospedar no Vercel)
+
+O mesmo código roda no navegador — dá para publicar uma versão web (útil para quem prefere
+usar no computador) de graça no [Vercel](https://vercel.com). O projeto já vem com o
+`vercel.json` configurado (build com `expo export --platform web`, saída em `dist/`, e o
+redirecionamento de rotas para funcionar como single-page app).
+
+Testar o build web localmente antes de publicar:
+
+```bash
+npx expo export --platform web   # gera a pasta dist/
+npx serve dist                   # abre um servidor local para conferir
+```
+
+Publicar no Vercel:
+
+1. Crie uma conta gratuita em [vercel.com](https://vercel.com) e clique em **Add New… >
+   Project**.
+2. Importe este repositório do GitHub. O Vercel lê o `vercel.json` automaticamente — não
+   precisa configurar comando de build nem pasta de saída na mão.
+3. Como o `.env` está commitado no repositório, as variáveis do Supabase já entram no build.
+   Se preferir removê-lo do repositório por segurança, cadastre as duas variáveis em
+   **Settings > Environment Variables** no Vercel (com os mesmos nomes,
+   `EXPO_PUBLIC_SUPABASE_URL` e `EXPO_PUBLIC_SUPABASE_ANON_KEY`).
+4. Clique em **Deploy**. Em um ou dois minutos o Vercel te dá uma URL pública (ex:
+   `buffa-finance.vercel.app`) que você e seus amigos podem abrir em qualquer navegador.
+
+> Importante: a URL do app precisa ser adicionada em **Authentication > URL Configuration >
+> Redirect URLs** no painel do Supabase, para o link de confirmação de e-mail funcionar na
+> versão web.
+
 ## Estrutura do projeto
 
 ```
