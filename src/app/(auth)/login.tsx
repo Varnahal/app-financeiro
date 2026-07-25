@@ -76,6 +76,8 @@ export default function LoginScreen() {
             secureTextEntry
             autoComplete="password"
             placeholder="••••••••"
+            returnKeyType="go"
+            onSubmitEditing={handleSubmit}
           />
         </View>
 

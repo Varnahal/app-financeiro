@@ -103,6 +103,8 @@ export default function CadastroScreen() {
             onChangeText={setConfirmPassword}
             secureTextEntry
             placeholder="Repita a senha"
+            returnKeyType="go"
+            onSubmitEditing={handleSubmit}
           />
         </View>
 

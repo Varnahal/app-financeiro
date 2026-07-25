@@ -19,3 +19,8 @@ export const Spacing = {
   lg: 24,
   xl: 32,
 };
+
+// Largura máxima do conteúdo no navegador: em telas largas o app fica numa
+// coluna central (como um celular), com as laterais em cor neutra.
+export const WebMaxWidth = 480;
+export const WebLetterbox = '#E2E5EA';
