@@ -1,7 +1,15 @@
 import { Feather } from '@expo/vector-icons';
 import { router } from 'expo-router';
-import { useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, SectionList, StyleSheet, Text, View } from 'react-native';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  ActivityIndicator,
+  Platform,
+  Pressable,
+  SectionList,
+  StyleSheet,
+  Text,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ExportSheet } from '@/components/ExportSheet';
@@ -46,6 +54,23 @@ export default function TransacoesScreen() {
   const [exportOpen, setExportOpen] = useState(false);
   const range = useMemo(() => monthRange(month), [month]);
   const { data: transactions, isLoading } = useTransactions(range);
+
+  // Atalho de teclado no desktop: tecla "N" abre Nova Transação (ignorado
+  // quando o foco está num campo de texto). Só no navegador.
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    function onKeyDown(event: KeyboardEvent) {
+      const target = event.target as HTMLElement | null;
+      const tag = target?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || target?.isContentEditable) return;
+      if ((event.key === 'n' || event.key === 'N') && !event.metaKey && !event.ctrlKey) {
+        event.preventDefault();
+        router.push('/transacao/nova');
+      }
+    }
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, []);
 
   const filtered = useMemo(
     () => applyTransactionFilters(transactions ?? [], filters),

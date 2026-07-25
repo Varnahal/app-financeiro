@@ -138,14 +138,23 @@ jeito), então tê-la aqui não é problema — a segurança dos dados vem das p
 
 O mesmo código roda no navegador — dá para publicar uma versão web (útil para quem prefere
 usar no computador) de graça no [Vercel](https://vercel.com). O projeto já vem com o
-`vercel.json` configurado (build com `expo export --platform web`, saída em `dist/`, e o
+`vercel.json` configurado (build com `npm run build:web`, saída em `dist/`, e o
 redirecionamento de rotas para funcionar como single-page app).
+
+Melhorias específicas da versão web:
+
+- **Coluna central:** em telas largas o app fica numa coluna centralizada (como um celular),
+  em vez de esticar na largura toda.
+- **Instalável (PWA):** dá para instalar o site como app (menu do Chrome > "Instalar", ou no
+  celular "Adicionar à tela inicial") e ele abre em tela cheia, sem a barra do navegador.
+- **Atalho de teclado:** aperte **N** (fora de um campo de texto) para abrir "Nova Transação".
+- **Enter** envia os formulários de login e cadastro.
 
 Testar o build web localmente antes de publicar:
 
 ```bash
-npx expo export --platform web   # gera a pasta dist/
-npx serve dist                   # abre um servidor local para conferir
+npm run build:web   # gera a pasta dist/ (export + injeção das tags de PWA)
+npx serve dist      # abre um servidor local para conferir
 ```
 
 Publicar no Vercel:
