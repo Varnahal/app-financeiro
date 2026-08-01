@@ -14,8 +14,19 @@ transações — ninguém vê o que os outros gastam.
 - Aba de Transações (tela inicial) com lista agrupada por dia e o botão **+** para
   adicionar uma nova transação. Tocando numa transação dá para vê-la, **editá-la** ou
   excluí-la.
-- Aba de Gráficos com despesas por categoria, receita x despesa por mês e saldo mensal.
+- Ao digitar a descrição de uma transação, o app **sugere a categoria** automaticamente
+  (ex: "iFood" → Alimentação, "Uber" → Transporte). É só uma sugestão: dá para trocar.
+- No formulário de nova transação, um atalho **"Repetir todo mês"** cria a recorrência
+  direto, sem precisar ir em Perfil > Recorrentes.
+- Aba de Gráficos com despesas por categoria e receita x despesa por período (com seletor
+  de mês inicial/final e os valores exibidos em cima das barras).
 - Filtros por categoria, conta e forma de pagamento nas abas de Transações e Gráficos.
+- Botão de **recarregar** na aba Transações (e puxar-pra-baixo no celular) para atualizar
+  os dados.
+- Aba de **Metas**: crie **limites de gasto** mensais (para todas as despesas ou só um
+  escopo — categoria, conta ou forma de pagamento) e **caixinhas** para guardar dinheiro
+  com depósitos e retiradas.
+- **Tema** claro, escuro ou automático (segue o sistema), configurável em Perfil > Aparência.
 - **Recorrentes** (Perfil > Recorrentes): salário e contas fixas (ex: internet) entram
   automaticamente todo mês. Ao alterar o valor de uma recorrência, os meses passados são
   preservados — só o mês atual e os seguintes mudam.
@@ -47,6 +58,7 @@ As migrations estão em `supabase/migrations/`, na ordem em que devem ser execut
 4. `20260704000004_create_purchase_rpc.sql` — cria a função que salva compras parceladas.
 5. `20260708000005_recurring_items.sql` — cria as recorrências (salário e contas fixas).
 6. `20260710000006_update_purchase_fields.sql` — permite editar transações já registradas.
+7. `20260725000007_goals.sql` — cria as metas (limites de gasto e caixinhas).
 
 **Forma mais simples (recomendada):** no painel do Supabase, abra **SQL Editor**, cole o
 conteúdo de cada arquivo (na ordem acima) e clique em **Run**. Repita para todos os arquivos.

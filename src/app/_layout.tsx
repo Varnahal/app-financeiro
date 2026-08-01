@@ -56,6 +56,14 @@ function RootNavigator() {
           name="recorrente/nova"
           options={{ presentation: 'modal', headerShown: true, title: 'Nova Recorrência' }}
         />
+        <Stack.Screen
+          name="meta/nova"
+          options={{ presentation: 'modal', headerShown: true, title: 'Nova Meta' }}
+        />
+        <Stack.Screen
+          name="meta/[id]"
+          options={{ presentation: 'modal', headerShown: true, title: 'Meta' }}
+        />
       </Stack.Protected>
       <Stack.Protected guard={!session}>
         <Stack.Screen name="(auth)" />

@@ -69,6 +69,31 @@ export type RecurringItem = {
   created_at: string;
 };
 
+export type GoalKind = 'gasto' | 'caixinha';
+
+export type Goal = {
+  id: string;
+  user_id: string;
+  name: string;
+  kind: GoalKind;
+  target_amount: number | null;
+  filter_payment_methods: PaymentMethod[];
+  filter_category_ids: string[];
+  filter_account_ids: string[];
+  archived: boolean;
+  created_at: string;
+};
+
+export type GoalContribution = {
+  id: string;
+  user_id: string;
+  goal_id: string;
+  amount: number;
+  note: string | null;
+  date: string;
+  created_at: string;
+};
+
 export type Transaction = {
   id: string;
   user_id: string;
@@ -153,6 +178,28 @@ export type Database = {
         Insert: Omit<RecurringItem, 'id' | 'created_at' | 'start_month' | 'end_month' | 'active'> &
           Partial<Pick<RecurringItem, 'start_month' | 'end_month' | 'active'>>;
         Update: Partial<RecurringItem>;
+        Relationships: [];
+      };
+      goals: {
+        Row: Goal;
+        Insert: Omit<
+          Goal,
+          'id' | 'created_at' | 'archived' | 'filter_payment_methods' | 'filter_category_ids' | 'filter_account_ids'
+        > &
+          Partial<
+            Pick<
+              Goal,
+              'archived' | 'filter_payment_methods' | 'filter_category_ids' | 'filter_account_ids'
+            >
+          >;
+        Update: Partial<Goal>;
+        Relationships: [];
+      };
+      goal_contributions: {
+        Row: GoalContribution;
+        Insert: Omit<GoalContribution, 'id' | 'created_at' | 'date' | 'note'> &
+          Partial<Pick<GoalContribution, 'date' | 'note'>>;
+        Update: Partial<GoalContribution>;
         Relationships: [];
       };
     };
