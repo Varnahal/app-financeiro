@@ -65,8 +65,3 @@ export function groupByMonth(
 
   return months.map((month) => totals.get(month)!);
 }
-
-/** Saldo (receita - despesa) por mês, útil para o gráfico de tendência. */
-export function monthlyNetTrend(monthlyTotals: MonthlyTotal[]): { label: string; net: number }[] {
-  return monthlyTotals.map((m) => ({ label: m.label, net: m.receita - m.despesa }));
-}

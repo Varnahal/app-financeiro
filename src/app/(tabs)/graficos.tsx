@@ -1,6 +1,8 @@
+import { Feather } from '@expo/vector-icons';
 import { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  Pressable,
   ScrollView,
   StyleSheet,
   Text,
@@ -11,37 +13,43 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ExpensesByCategoryChart } from '@/components/charts/ExpensesByCategoryChart';
 import { IncomeVsExpenseChart } from '@/components/charts/IncomeVsExpenseChart';
-import { MonthlyTrendChart } from '@/components/charts/MonthlyTrendChart';
 import { FilterButton, FilterSheet } from '@/components/FilterSheet';
 import { MonthSelector } from '@/components/MonthSelector';
 import { Spacing, type ThemeColors } from '@/constants/theme';
-import { useThemedStyles } from '@/hooks/useTheme';
+import { useTheme, useThemedStyles } from '@/hooks/useTheme';
 import { useTransactions } from '@/hooks/useTransactions';
-import { groupByCategory, groupByMonth, monthlyNetTrend } from '@/utils/aggregations';
-import { lastMonths, monthRange } from '@/utils/date';
+import { groupByCategory, groupByMonth } from '@/utils/aggregations';
+import { dayjs, monthRange, monthsBetween } from '@/utils/date';
 import { applyTransactionFilters, countActiveFilters, EMPTY_FILTERS } from '@/utils/filters';
-
-const MONTHS_WINDOW = 12;
-const BAR_CHART_MONTHS = 6;
 
 export default function GraficosScreen() {
   const styles = useThemedStyles(makeStyles);
+  const { colors } = useTheme();
   const { width } = useWindowDimensions();
   const [categoryMonth, setCategoryMonth] = useState(new Date());
+  // Período do gráfico de barras: por padrão os últimos 6 meses.
+  const [startMonth, setStartMonth] = useState(() => dayjs().subtract(5, 'month').toDate());
+  const [endMonth, setEndMonth] = useState(() => new Date());
   const [filters, setFilters] = useState(EMPTY_FILTERS);
   const [filterOpen, setFilterOpen] = useState(false);
 
   // Largura útil dentro dos cards: tela − padding da tela (lg×2) − padding do card (md×2).
   const chartWidth = width - Spacing.lg * 2 - Spacing.md * 2;
 
-  const months = useMemo(() => lastMonths(MONTHS_WINDOW), []);
-  const range = useMemo(
-    () => ({
-      start: `${months[0]}-01`,
-      end: monthRange(new Date()).end,
-    }),
-    [months]
-  );
+  const periodMonths = useMemo(() => monthsBetween(startMonth, endMonth), [startMonth, endMonth]);
+
+  // Consulta um intervalo que cobre tanto o período das barras quanto o mês do
+  // gráfico de categorias (que navega livremente).
+  const range = useMemo(() => {
+    const categoryKey = dayjs(categoryMonth).format('YYYY-MM');
+    const keys = [...periodMonths, categoryKey];
+    const min = keys.reduce((acc, k) => (k < acc ? k : acc), keys[0]);
+    const max = keys.reduce((acc, k) => (k > acc ? k : acc), keys[0]);
+    return {
+      start: `${min}-01`,
+      end: monthRange(dayjs(`${max}-01`).toDate()).end,
+    };
+  }, [periodMonths, categoryMonth]);
 
   const { data: transactions, isLoading } = useTransactions(range);
 
@@ -50,7 +58,10 @@ export default function GraficosScreen() {
     [transactions, filters]
   );
 
-  const monthlyTotals = useMemo(() => groupByMonth(filtered, months), [filtered, months]);
+  const monthlyTotals = useMemo(
+    () => groupByMonth(filtered, periodMonths),
+    [filtered, periodMonths]
+  );
 
   const categoryData = useMemo(() => {
     const { start, end } = monthRange(categoryMonth);
@@ -84,18 +95,26 @@ export default function GraficosScreen() {
         </View>
 
         <View style={styles.card}>
-          <Text style={styles.cardTitle}>
-            Receita x Despesa (últimos {BAR_CHART_MONTHS} meses)
-          </Text>
-          <IncomeVsExpenseChart
-            months={monthlyTotals.slice(-BAR_CHART_MONTHS)}
-            availableWidth={chartWidth}
-          />
-        </View>
-
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Saldo mensal</Text>
-          <MonthlyTrendChart points={monthlyNetTrend(monthlyTotals)} availableWidth={chartWidth} />
+          <Text style={styles.cardTitle}>Receita x Despesa</Text>
+          <View style={styles.periodRow}>
+            <MonthStepper
+              label="De"
+              value={startMonth}
+              onChange={setStartMonth}
+              textColor={colors.text}
+              mutedColor={colors.textMuted}
+              styles={styles}
+            />
+            <MonthStepper
+              label="Até"
+              value={endMonth}
+              onChange={setEndMonth}
+              textColor={colors.text}
+              mutedColor={colors.textMuted}
+              styles={styles}
+            />
+          </View>
+          <IncomeVsExpenseChart months={monthlyTotals} availableWidth={chartWidth} />
         </View>
       </ScrollView>
 
@@ -107,6 +126,40 @@ export default function GraficosScreen() {
       />
     </SafeAreaView>
   );
+}
+
+interface MonthStepperProps {
+  label: string;
+  value: Date;
+  onChange: (date: Date) => void;
+  textColor: string;
+  mutedColor: string;
+  styles: ReturnType<typeof makeStyles>;
+}
+
+function MonthStepper({ label, value, onChange, textColor, mutedColor, styles }: MonthStepperProps) {
+  const monthLabel = dayjs(value).format('MMM/YY');
+  return (
+    <View style={styles.stepper}>
+      <Text style={styles.stepperLabel}>{label}</Text>
+      <View style={styles.stepperControls}>
+        <Pressable
+          hitSlop={8}
+          onPress={() => onChange(dayjs(value).subtract(1, 'month').toDate())}
+        >
+          <Feather name="chevron-left" size={18} color={mutedColor} />
+        </Pressable>
+        <Text style={[styles.stepperValue, { color: textColor }]}>{capitalize(monthLabel)}</Text>
+        <Pressable hitSlop={8} onPress={() => onChange(dayjs(value).add(1, 'month').toDate())}>
+          <Feather name="chevron-right" size={18} color={mutedColor} />
+        </Pressable>
+      </View>
+    </View>
+  );
+}
+
+function capitalize(text: string): string {
+  return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
 const makeStyles = (colors: ThemeColors) => StyleSheet.create({
@@ -124,4 +177,26 @@ const makeStyles = (colors: ThemeColors) => StyleSheet.create({
     padding: Spacing.md,
   },
   cardTitle: { fontSize: 15, fontWeight: '700', color: colors.text, marginBottom: Spacing.xs },
+  periodRow: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    marginTop: Spacing.xs,
+    marginBottom: Spacing.sm,
+  },
+  stepper: {
+    flex: 1,
+    backgroundColor: colors.background,
+    borderRadius: 10,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.xs,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.border,
+  },
+  stepperLabel: { fontSize: 11, color: colors.textMuted, marginBottom: 2 },
+  stepperControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  stepperValue: { fontSize: 14, fontWeight: '600' },
 });
