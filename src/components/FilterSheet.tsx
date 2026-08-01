@@ -3,7 +3,8 @@ import { useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { PAYMENT_METHODS, PAYMENT_METHOD_LABELS } from '@/constants/categories';
-import { Colors, Spacing } from '@/constants/theme';
+import { Spacing, type ThemeColors } from '@/constants/theme';
+import { useTheme, useThemedStyles } from '@/hooks/useTheme';
 import { useAccounts } from '@/hooks/useAccounts';
 import { useCategories } from '@/hooks/useCategories';
 import { EMPTY_FILTERS, type TransactionFilters } from '@/utils/filters';
@@ -14,9 +15,11 @@ interface FilterButtonProps {
 }
 
 export function FilterButton({ activeCount, onPress }: FilterButtonProps) {
+  const styles = useThemedStyles(makeStyles);
+  const { colors } = useTheme();
   return (
     <Pressable style={styles.filterButton} onPress={onPress}>
-      <Feather name="sliders" size={20} color={Colors.text} />
+      <Feather name="sliders" size={20} color={colors.text} />
       {activeCount > 0 && (
         <View style={styles.badge}>
           <Text style={styles.badgeText}>{activeCount}</Text>
@@ -38,6 +41,7 @@ interface ChipGroupProps {
 }
 
 function ChipGroup({ title, options, selected, onToggle }: ChipGroupProps) {
+  const styles = useThemedStyles(makeStyles);
   if (options.length === 0) return null;
   return (
     <View style={styles.group}>
@@ -70,6 +74,7 @@ interface FilterSheetProps {
 }
 
 export function FilterSheet({ visible, onClose, filters, onApply }: FilterSheetProps) {
+  const styles = useThemedStyles(makeStyles);
   const { data: categories } = useCategories();
   const { data: accounts } = useAccounts();
   const [draft, setDraft] = useState<TransactionFilters>(filters);
@@ -136,7 +141,7 @@ export function FilterSheet({ visible, onClose, filters, onApply }: FilterSheetP
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: ThemeColors) => StyleSheet.create({
   filterButton: {
     padding: Spacing.sm,
     borderRadius: 10,
@@ -145,7 +150,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 2,
     right: 0,
-    backgroundColor: Colors.primary,
+    backgroundColor: colors.primary,
     borderRadius: 9,
     minWidth: 18,
     height: 18,
@@ -157,18 +162,18 @@ const styles = StyleSheet.create({
   modalRoot: { flex: 1, justifyContent: 'flex-end' },
   backdropTint: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' },
   sheet: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: Spacing.lg,
   },
-  sheetTitle: { fontSize: 16, fontWeight: '700', marginBottom: Spacing.md, color: Colors.text },
+  sheetTitle: { fontSize: 16, fontWeight: '700', marginBottom: Spacing.md, color: colors.text },
   scroll: { maxHeight: 420 },
   group: { marginBottom: Spacing.md },
   groupTitle: {
     fontSize: 13,
     fontWeight: '600',
-    color: Colors.textMuted,
+    color: colors.textMuted,
     textTransform: 'uppercase',
     marginBottom: Spacing.sm,
   },
@@ -177,12 +182,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
     paddingVertical: 6,
     borderRadius: 999,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
   },
-  chipActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
-  chipText: { fontSize: 13, color: Colors.textMuted },
+  chipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
+  chipText: { fontSize: 13, color: colors.textMuted },
   chipTextActive: { color: '#fff', fontWeight: '600' },
   footer: {
     flexDirection: 'row',
@@ -190,20 +195,20 @@ const styles = StyleSheet.create({
     marginTop: Spacing.md,
     paddingTop: Spacing.md,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: Colors.border,
+    borderTopColor: colors.border,
   },
   clearButton: {
     flex: 1,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     borderRadius: 12,
     paddingVertical: 12,
     alignItems: 'center',
   },
-  clearButtonText: { color: Colors.text, fontWeight: '600' },
+  clearButtonText: { color: colors.text, fontWeight: '600' },
   applyButton: {
     flex: 1,
-    backgroundColor: Colors.primary,
+    backgroundColor: colors.primary,
     borderRadius: 12,
     paddingVertical: 12,
     alignItems: 'center',

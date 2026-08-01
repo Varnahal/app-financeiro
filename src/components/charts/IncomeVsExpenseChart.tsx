@@ -1,7 +1,8 @@
 import { BarChart, type barDataItem } from 'react-native-gifted-charts';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { Colors, Spacing } from '@/constants/theme';
+import { Spacing, type ThemeColors } from '@/constants/theme';
+import { useTheme, useThemedStyles } from '@/hooks/useTheme';
 import type { MonthlyTotal } from '@/utils/aggregations';
 
 const Y_AXIS_LABEL_WIDTH = 35;
@@ -15,6 +16,8 @@ interface IncomeVsExpenseChartProps {
 }
 
 export function IncomeVsExpenseChart({ months, availableWidth }: IncomeVsExpenseChartProps) {
+  const styles = useThemedStyles(makeStyles);
+  const { colors } = useTheme();
   const chartWidth = availableWidth - Y_AXIS_LABEL_WIDTH;
   const n = Math.max(1, months.length);
   // Largura de barra calculada para o conjunto caber exatamente na tela, sem scroll.
@@ -29,17 +32,17 @@ export function IncomeVsExpenseChart({ months, availableWidth }: IncomeVsExpense
       label: m.label,
       spacing: PAIR_SPACING,
       labelWidth: 2 * barWidth + PAIR_SPACING,
-      labelTextStyle: { color: Colors.textMuted, fontSize: 10 },
-      frontColor: Colors.success,
+      labelTextStyle: { color: colors.textMuted, fontSize: 10 },
+      frontColor: colors.success,
     },
-    { value: m.despesa, frontColor: Colors.danger },
+    { value: m.despesa, frontColor: colors.danger },
   ]);
 
   return (
     <View style={styles.container}>
       <View style={styles.legendRow}>
-        <LegendDot color={Colors.success} label="Receita" />
-        <LegendDot color={Colors.danger} label="Despesa" />
+        <LegendDot color={colors.success} label="Receita" />
+        <LegendDot color={colors.danger} label="Despesa" />
       </View>
       <BarChart
         data={data}
@@ -52,8 +55,8 @@ export function IncomeVsExpenseChart({ months, availableWidth }: IncomeVsExpense
         disableScroll
         roundedTop
         noOfSections={4}
-        yAxisTextStyle={{ color: Colors.textMuted, fontSize: 10 }}
-        xAxisLabelTextStyle={{ color: Colors.textMuted, fontSize: 10 }}
+        yAxisTextStyle={{ color: colors.textMuted, fontSize: 10 }}
+        xAxisLabelTextStyle={{ color: colors.textMuted, fontSize: 10 }}
         hideRules
         isAnimated
       />
@@ -62,6 +65,7 @@ export function IncomeVsExpenseChart({ months, availableWidth }: IncomeVsExpense
 }
 
 function LegendDot({ color, label }: { color: string; label: string }) {
+  const styles = useThemedStyles(makeStyles);
   return (
     <View style={styles.legendItem}>
       <View style={[styles.dot, { backgroundColor: color }]} />
@@ -70,10 +74,10 @@ function LegendDot({ color, label }: { color: string; label: string }) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { paddingVertical: Spacing.sm },
   legendRow: { flexDirection: 'row', gap: Spacing.lg, marginBottom: Spacing.md, paddingHorizontal: Spacing.xs },
   legendItem: { flexDirection: 'row', alignItems: 'center', gap: Spacing.xs },
   dot: { width: 10, height: 10, borderRadius: 5 },
-  legendText: { color: Colors.textMuted, fontSize: 13 },
+  legendText: { color: colors.textMuted, fontSize: 13 },
 });

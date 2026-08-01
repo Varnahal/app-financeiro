@@ -2,7 +2,8 @@ import { useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { PickerField } from '@/components/PickerField';
-import { Colors, Spacing } from '@/constants/theme';
+import { Spacing, type ThemeColors } from '@/constants/theme';
+import { useThemedStyles } from '@/hooks/useTheme';
 import { useAccounts, useCreateAccount } from '@/hooks/useAccounts';
 import { showAlert } from '@/utils/alert';
 
@@ -13,6 +14,7 @@ interface AccountPickerProps {
 }
 
 export function AccountPicker({ value, onSelect, error }: AccountPickerProps) {
+  const styles = useThemedStyles(makeStyles);
   const { data: accounts } = useAccounts();
   const createAccount = useCreateAccount();
   const [newName, setNewName] = useState('');
@@ -62,25 +64,25 @@ export function AccountPicker({ value, onSelect, error }: AccountPickerProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: ThemeColors) => StyleSheet.create({
   quickAdd: {
     flexDirection: 'row',
     gap: Spacing.sm,
     marginTop: Spacing.md,
     paddingTop: Spacing.md,
     borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: Colors.border,
+    borderTopColor: colors.border,
   },
   input: {
     flex: 1,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     borderRadius: 10,
     paddingHorizontal: Spacing.md,
     fontSize: 14,
   },
   addButton: {
-    backgroundColor: Colors.primary,
+    backgroundColor: colors.primary,
     borderRadius: 10,
     paddingHorizontal: Spacing.md,
     alignItems: 'center',

@@ -3,7 +3,8 @@ import { ActivityIndicator, Modal, Pressable, StyleSheet, Text, View } from 'rea
 
 import { DateField } from '@/components/DateField';
 import { MonthSelector } from '@/components/MonthSelector';
-import { Colors, Spacing } from '@/constants/theme';
+import { Spacing, type ThemeColors } from '@/constants/theme';
+import { useThemedStyles } from '@/hooks/useTheme';
 import { fetchTransactionsInRange } from '@/hooks/useTransactions';
 import { showAlert } from '@/utils/alert';
 import { dayjs, monthRange, toISODate } from '@/utils/date';
@@ -19,6 +20,7 @@ interface ExportSheetProps {
 }
 
 export function ExportSheet({ visible, onClose, initialMonth }: ExportSheetProps) {
+  const styles = useThemedStyles(makeStyles);
   const [mode, setMode] = useState<ExportMode>('mes');
   const [month, setMonth] = useState(initialMonth);
   const [startDate, setStartDate] = useState(() => dayjs().startOf('month').toDate());
@@ -123,38 +125,38 @@ export function ExportSheet({ visible, onClose, initialMonth }: ExportSheetProps
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: ThemeColors) => StyleSheet.create({
   modalRoot: { flex: 1, justifyContent: 'flex-end' },
   backdropTint: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' },
   sheet: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: Spacing.lg,
   },
-  sheetTitle: { fontSize: 16, fontWeight: '700', marginBottom: Spacing.md, color: Colors.text },
+  sheetTitle: { fontSize: 16, fontWeight: '700', marginBottom: Spacing.md, color: colors.text },
   modeToggle: {
     flexDirection: 'row',
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
     borderRadius: 12,
     padding: 4,
     marginBottom: Spacing.md,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
   },
   modeButton: { flex: 1, paddingVertical: 10, borderRadius: 10, alignItems: 'center' },
-  modeButtonActive: { backgroundColor: Colors.primary },
-  modeButtonText: { fontWeight: '600', color: Colors.textMuted, fontSize: 13 },
+  modeButtonActive: { backgroundColor: colors.primary },
+  modeButtonText: { fontWeight: '600', color: colors.textMuted, fontSize: 13 },
   modeButtonTextActive: { color: '#fff' },
   monthWrapper: {
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     borderRadius: 12,
     marginBottom: Spacing.sm,
   },
-  hint: { color: Colors.textMuted, fontSize: 12, marginTop: Spacing.xs, marginBottom: Spacing.md },
+  hint: { color: colors.textMuted, fontSize: 12, marginTop: Spacing.xs, marginBottom: Spacing.md },
   exportButton: {
-    backgroundColor: Colors.primary,
+    backgroundColor: colors.primary,
     borderRadius: 12,
     paddingVertical: 14,
     alignItems: 'center',

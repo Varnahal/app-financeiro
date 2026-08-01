@@ -3,7 +3,8 @@ import DateTimePicker, { DateTimePickerAndroid } from '@react-native-community/d
 import { useState } from 'react';
 import { Modal, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { Colors, Spacing } from '@/constants/theme';
+import { Spacing, type ThemeColors } from '@/constants/theme';
+import { useTheme, useThemedStyles } from '@/hooks/useTheme';
 import { formatDate } from '@/utils/date';
 
 interface DateFieldProps {
@@ -13,6 +14,8 @@ interface DateFieldProps {
 }
 
 export function DateField({ label, value, onChange }: DateFieldProps) {
+  const styles = useThemedStyles(makeStyles);
+  const { colors } = useTheme();
   const [open, setOpen] = useState(false);
 
   function handlePress() {
@@ -33,7 +36,7 @@ export function DateField({ label, value, onChange }: DateFieldProps) {
     <View style={styles.field}>
       <Text style={styles.label}>{label}</Text>
       <Pressable style={styles.input} onPress={handlePress}>
-        <Feather name="calendar" size={16} color={Colors.textMuted} />
+        <Feather name="calendar" size={16} color={colors.textMuted} />
         <Text style={styles.value}>{formatDate(value)}</Text>
       </Pressable>
 
@@ -63,24 +66,24 @@ export function DateField({ label, value, onChange }: DateFieldProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: ThemeColors) => StyleSheet.create({
   field: { marginBottom: Spacing.md },
-  label: { fontSize: 13, color: Colors.textMuted, marginBottom: Spacing.xs },
+  label: { fontSize: 13, color: colors.textMuted, marginBottom: Spacing.xs },
   input: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.sm,
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     borderRadius: 12,
     paddingHorizontal: Spacing.md,
     paddingVertical: 12,
   },
-  value: { fontSize: 16, color: Colors.text },
+  value: { fontSize: 16, color: colors.text },
   modalRoot: { flex: 1, justifyContent: 'flex-end' },
   backdropTint: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' },
-  sheet: { backgroundColor: Colors.surface, borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: Spacing.lg },
-  doneButton: { backgroundColor: Colors.primary, borderRadius: 10, paddingVertical: 12, alignItems: 'center', marginTop: Spacing.sm },
+  sheet: { backgroundColor: colors.surface, borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: Spacing.lg },
+  doneButton: { backgroundColor: colors.primary, borderRadius: 10, paddingVertical: 12, alignItems: 'center', marginTop: Spacing.sm },
   doneButtonText: { color: '#fff', fontWeight: '600' },
 });

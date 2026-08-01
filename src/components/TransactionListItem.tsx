@@ -1,7 +1,8 @@
 import { Feather } from '@expo/vector-icons';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { Colors, Spacing } from '@/constants/theme';
+import { Spacing, type ThemeColors } from '@/constants/theme';
+import { useTheme, useThemedStyles } from '@/hooks/useTheme';
 import { getCategoryIcon } from '@/constants/categories';
 import { formatCurrency } from '@/utils/currency';
 import type { TransactionWithRelations } from '@/types/database.types';
@@ -12,6 +13,8 @@ interface TransactionListItemProps {
 }
 
 export function TransactionListItem({ transaction, onPress }: TransactionListItemProps) {
+  const styles = useThemedStyles(makeStyles);
+  const { colors } = useTheme();
   const isReceita = transaction.type === 'receita';
   const isParcelado = transaction.installments_total > 1;
 
@@ -24,7 +27,7 @@ export function TransactionListItem({ transaction, onPress }: TransactionListIte
         <Feather
           name={getCategoryIcon(transaction.category?.icon)}
           size={18}
-          color={isReceita ? Colors.success : Colors.danger}
+          color={isReceita ? colors.success : colors.danger}
         />
       </View>
       <View style={styles.info}>
@@ -36,18 +39,18 @@ export function TransactionListItem({ transaction, onPress }: TransactionListIte
           {isParcelado ? ` · ${transaction.installment_number}/${transaction.installments_total}` : ''}
         </Text>
       </View>
-      <Text style={[styles.amount, { color: isReceita ? Colors.success : Colors.text }]}>
+      <Text style={[styles.amount, { color: isReceita ? colors.success : colors.text }]}>
         {isReceita ? '+' : '-'} {formatCurrency(transaction.amount)}
       </Text>
     </Pressable>
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: ThemeColors) => StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderRadius: 12,
     padding: Spacing.md,
     gap: Spacing.md,
@@ -61,7 +64,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   info: { flex: 1 },
-  description: { fontSize: 15, fontWeight: '600', color: Colors.text },
-  meta: { fontSize: 13, color: Colors.textMuted, marginTop: 2 },
+  description: { fontSize: 15, fontWeight: '600', color: colors.text },
+  meta: { fontSize: 13, color: colors.textMuted, marginTop: 2 },
   amount: { fontSize: 15, fontWeight: '700' },
 });

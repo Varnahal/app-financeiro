@@ -14,9 +14,12 @@ import {
 } from 'react-native';
 
 import { useAuth } from '@/hooks/useAuth';
-import { Colors, Spacing } from '@/constants/theme';
+import { Spacing, type ThemeColors } from '@/constants/theme';
+import { useTheme, useThemedStyles } from '@/hooks/useTheme';
 
 export default function LoginScreen() {
+  const styles = useThemedStyles(makeStyles);
+  const { colors } = useTheme();
   const { signIn } = useAuth();
   const { signup } = useLocalSearchParams<{ signup?: string }>();
   const [email, setEmail] = useState('');
@@ -47,7 +50,7 @@ export default function LoginScreen() {
 
         {signup === 'ok' && (
           <View style={styles.successBanner}>
-            <Feather name="mail" size={18} color={Colors.success} />
+            <Feather name="mail" size={18} color={colors.success} />
             <Text style={styles.successText}>
               Conta criada! Verifique seu e-mail para confirmar o cadastro antes de entrar.
             </Text>
@@ -105,24 +108,24 @@ export default function LoginScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: ThemeColors) => StyleSheet.create({
   flex: { flex: 1 },
   container: {
     flexGrow: 1,
     justifyContent: 'center',
     padding: Spacing.lg,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
     gap: Spacing.sm,
   },
   title: {
     fontSize: 32,
     fontWeight: '700',
-    color: Colors.text,
+    color: colors.text,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: 15,
-    color: Colors.textMuted,
+    color: colors.textMuted,
     textAlign: 'center',
     marginBottom: Spacing.lg,
   },
@@ -132,7 +135,7 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
     backgroundColor: '#E7F7EC',
     borderWidth: 1,
-    borderColor: Colors.success,
+    borderColor: colors.success,
     borderRadius: 12,
     padding: Spacing.md,
     marginBottom: Spacing.md,
@@ -141,27 +144,27 @@ const styles = StyleSheet.create({
   field: { marginBottom: Spacing.md },
   label: {
     fontSize: 13,
-    color: Colors.textMuted,
+    color: colors.textMuted,
     marginBottom: Spacing.xs,
   },
   input: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     borderRadius: 12,
     paddingHorizontal: Spacing.md,
     paddingVertical: 12,
     fontSize: 16,
-    color: Colors.text,
+    color: colors.text,
   },
   errorText: {
-    color: Colors.danger,
+    color: colors.danger,
     fontSize: 13,
     textAlign: 'center',
     marginBottom: Spacing.sm,
   },
   button: {
-    backgroundColor: Colors.primary,
+    backgroundColor: colors.primary,
     borderRadius: 12,
     paddingVertical: 14,
     alignItems: 'center',
@@ -170,5 +173,5 @@ const styles = StyleSheet.create({
   buttonPressed: { opacity: 0.8 },
   buttonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
   linkButton: { marginTop: Spacing.lg, alignItems: 'center' },
-  linkText: { color: Colors.primary, fontSize: 14, fontWeight: '500' },
+  linkText: { color: colors.primary, fontSize: 14, fontWeight: '500' },
 });

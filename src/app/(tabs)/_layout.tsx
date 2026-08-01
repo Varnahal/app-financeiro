@@ -1,10 +1,12 @@
 import { Feather } from '@expo/vector-icons';
 import { Tabs } from 'expo-router/tabs';
 
-import { Colors } from '@/constants/theme';
+import { useTheme } from '@/hooks/useTheme';
 import { useMaterializeRecurring } from '@/hooks/useRecurringItems';
 
 export default function TabsLayout() {
+  const { colors } = useTheme();
+
   // Ao abrir o app logado, cria as ocorrências de recorrências (salário,
   // contas fixas) dos meses que ainda não foram gerados.
   useMaterializeRecurring();
@@ -13,8 +15,9 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: Colors.primary,
-        tabBarInactiveTintColor: Colors.textMuted,
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.textMuted,
+        tabBarStyle: { backgroundColor: colors.surface, borderTopColor: colors.border },
       }}
     >
       <Tabs.Screen
@@ -29,6 +32,13 @@ export default function TabsLayout() {
         options={{
           title: 'Gráficos',
           tabBarIcon: ({ color, size }) => <Feather name="pie-chart" size={size} color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="metas"
+        options={{
+          title: 'Metas',
+          tabBarIcon: ({ color, size }) => <Feather name="target" size={size} color={color} />,
         }}
       />
       <Tabs.Screen

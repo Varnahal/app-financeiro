@@ -16,7 +16,8 @@ import { ExportSheet } from '@/components/ExportSheet';
 import { FilterButton, FilterSheet } from '@/components/FilterSheet';
 import { MonthSelector } from '@/components/MonthSelector';
 import { TransactionListItem } from '@/components/TransactionListItem';
-import { Colors, Spacing } from '@/constants/theme';
+import { Spacing, type ThemeColors } from '@/constants/theme';
+import { useTheme, useThemedStyles } from '@/hooks/useTheme';
 import { useTransactions } from '@/hooks/useTransactions';
 import { formatCurrency } from '@/utils/currency';
 import { formatDayHeader, monthRange } from '@/utils/date';
@@ -48,6 +49,8 @@ function groupByDay(transactions: TransactionWithRelations[]): Section[] {
 }
 
 export default function TransacoesScreen() {
+  const styles = useThemedStyles(makeStyles);
+  const { colors } = useTheme();
   const [month, setMonth] = useState(new Date());
   const [filters, setFilters] = useState(EMPTY_FILTERS);
   const [filterOpen, setFilterOpen] = useState(false);
@@ -91,7 +94,7 @@ export default function TransacoesScreen() {
           <MonthSelector month={month} onChange={setMonth} />
         </View>
         <Pressable style={styles.exportButton} onPress={() => setExportOpen(true)}>
-          <Feather name="download" size={20} color={Colors.text} />
+          <Feather name="download" size={20} color={colors.text} />
         </Pressable>
         <FilterButton
           activeCount={countActiveFilters(filters)}
@@ -102,7 +105,7 @@ export default function TransacoesScreen() {
       <View style={styles.summary}>
         <Text style={styles.summaryLabel}>Saldo do mês</Text>
         <Text
-          style={[styles.summaryValue, { color: monthTotal >= 0 ? Colors.success : Colors.danger }]}
+          style={[styles.summaryValue, { color: monthTotal >= 0 ? colors.success : colors.danger }]}
         >
           {formatCurrency(monthTotal)}
         </Text>
@@ -132,7 +135,7 @@ export default function TransacoesScreen() {
           )}
           ListEmptyComponent={
             <View style={styles.empty}>
-              <Feather name="inbox" size={32} color={Colors.textMuted} />
+              <Feather name="inbox" size={32} color={colors.textMuted} />
               <Text style={styles.emptyText}>
                 {countActiveFilters(filters) > 0
                   ? 'Nenhuma transação encontrada com os filtros atuais.'
@@ -163,8 +166,8 @@ export default function TransacoesScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
+const makeStyles = (colors: ThemeColors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   toolbar: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -175,7 +178,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.lg,
     paddingBottom: Spacing.md,
   },
-  summaryLabel: { fontSize: 13, color: Colors.textMuted },
+  summaryLabel: { fontSize: 13, color: colors.textMuted },
   summaryValue: { fontSize: 28, fontWeight: '700', marginTop: 2 },
   listContent: { paddingHorizontal: Spacing.lg, paddingBottom: 120 },
   sectionHeader: {
@@ -184,11 +187,11 @@ const styles = StyleSheet.create({
     marginTop: Spacing.md,
     marginBottom: Spacing.xs,
   },
-  sectionTitle: { fontSize: 13, fontWeight: '600', color: Colors.textMuted, textTransform: 'capitalize' },
-  sectionTotal: { fontSize: 13, fontWeight: '600', color: Colors.textMuted },
+  sectionTitle: { fontSize: 13, fontWeight: '600', color: colors.textMuted, textTransform: 'capitalize' },
+  sectionTotal: { fontSize: 13, fontWeight: '600', color: colors.textMuted },
   itemWrapper: { marginBottom: Spacing.sm },
   empty: { alignItems: 'center', marginTop: Spacing.xl * 2, gap: Spacing.sm, paddingHorizontal: Spacing.xl },
-  emptyText: { color: Colors.textMuted, textAlign: 'center', fontSize: 14 },
+  emptyText: { color: colors.textMuted, textAlign: 'center', fontSize: 14 },
   fab: {
     position: 'absolute',
     right: Spacing.lg,
@@ -196,7 +199,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: Colors.primary,
+    backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',

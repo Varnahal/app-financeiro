@@ -16,7 +16,8 @@ import { z } from 'zod';
 import { AccountPicker } from '@/components/AccountPicker';
 import { CategoryPicker } from '@/components/CategoryPicker';
 import { PaymentMethodPicker } from '@/components/PaymentMethodPicker';
-import { Colors, Spacing } from '@/constants/theme';
+import { Spacing, type ThemeColors } from '@/constants/theme';
+import { useTheme, useThemedStyles } from '@/hooks/useTheme';
 import { useCreateRecurringItem } from '@/hooks/useRecurringItems';
 import { showAlert } from '@/utils/alert';
 import { formatCurrency, parseCurrencyInput } from '@/utils/currency';
@@ -40,6 +41,8 @@ const schema = z
 type FormValues = z.infer<typeof schema>;
 
 export default function NovaRecorrenciaScreen() {
+  const styles = useThemedStyles(makeStyles);
+  const { colors } = useTheme();
   const createRecurring = useCreateRecurringItem();
 
   const {
@@ -158,7 +161,7 @@ export default function NovaRecorrenciaScreen() {
               onPress={() => setValue('dayOfMonth', Math.max(1, dayOfMonth - 1))}
               disabled={dayOfMonth <= 1}
             >
-              <Feather name="minus" size={18} color={dayOfMonth <= 1 ? Colors.border : Colors.primary} />
+              <Feather name="minus" size={18} color={dayOfMonth <= 1 ? colors.border : colors.primary} />
             </Pressable>
             <Text style={styles.stepValue}>Dia {dayOfMonth}</Text>
             <Pressable
@@ -166,7 +169,7 @@ export default function NovaRecorrenciaScreen() {
               onPress={() => setValue('dayOfMonth', Math.min(31, dayOfMonth + 1))}
               disabled={dayOfMonth >= 31}
             >
-              <Feather name="plus" size={18} color={dayOfMonth >= 31 ? Colors.border : Colors.primary} />
+              <Feather name="plus" size={18} color={dayOfMonth >= 31 ? colors.border : colors.primary} />
             </Pressable>
           </View>
           <Text style={styles.stepHint}>
@@ -233,71 +236,71 @@ export default function NovaRecorrenciaScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
+const makeStyles = (colors: ThemeColors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   content: { padding: Spacing.lg },
   hint: {
-    color: Colors.textMuted,
+    color: colors.textMuted,
     fontSize: 13,
     marginBottom: Spacing.lg,
     lineHeight: 18,
   },
   typeToggle: {
     flexDirection: 'row',
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
     borderRadius: 12,
     padding: 4,
     marginBottom: Spacing.lg,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
   },
   typeButton: { flex: 1, paddingVertical: 10, borderRadius: 10, alignItems: 'center' },
-  typeButtonDespesaActive: { backgroundColor: Colors.danger },
-  typeButtonReceitaActive: { backgroundColor: Colors.success },
-  typeButtonText: { fontWeight: '600', color: Colors.textMuted },
+  typeButtonDespesaActive: { backgroundColor: colors.danger },
+  typeButtonReceitaActive: { backgroundColor: colors.success },
+  typeButtonText: { fontWeight: '600', color: colors.textMuted },
   typeButtonTextActive: { color: '#fff' },
   field: { marginBottom: Spacing.md },
-  label: { fontSize: 13, color: Colors.textMuted, marginBottom: Spacing.xs },
+  label: { fontSize: 13, color: colors.textMuted, marginBottom: Spacing.xs },
   input: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     borderRadius: 12,
     paddingHorizontal: Spacing.md,
     paddingVertical: 12,
     fontSize: 16,
-    color: Colors.text,
+    color: colors.text,
   },
   amountInput: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     borderRadius: 12,
     paddingHorizontal: Spacing.md,
     paddingVertical: 12,
     fontSize: 24,
     fontWeight: '700',
-    color: Colors.text,
+    color: colors.text,
   },
-  inputError: { borderColor: Colors.danger },
-  errorText: { color: Colors.danger, fontSize: 12, marginTop: 4 },
+  inputError: { borderColor: colors.danger },
+  errorText: { color: colors.danger, fontSize: 12, marginTop: 4 },
   stepper: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: Spacing.lg,
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     borderRadius: 12,
     paddingVertical: 10,
   },
   stepButton: { padding: Spacing.sm },
-  stepValue: { fontSize: 16, fontWeight: '700', color: Colors.text, minWidth: 70, textAlign: 'center' },
-  stepHint: { color: Colors.textMuted, fontSize: 12, marginTop: 4, textAlign: 'center' },
-  preview: { textAlign: 'center', color: Colors.textMuted, fontSize: 13, marginBottom: Spacing.md },
+  stepValue: { fontSize: 16, fontWeight: '700', color: colors.text, minWidth: 70, textAlign: 'center' },
+  stepHint: { color: colors.textMuted, fontSize: 12, marginTop: 4, textAlign: 'center' },
+  preview: { textAlign: 'center', color: colors.textMuted, fontSize: 13, marginBottom: Spacing.md },
   submitButton: {
-    backgroundColor: Colors.primary,
+    backgroundColor: colors.primary,
     borderRadius: 12,
     paddingVertical: 14,
     alignItems: 'center',

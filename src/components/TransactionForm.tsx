@@ -9,7 +9,8 @@ import { CategoryPicker } from '@/components/CategoryPicker';
 import { DateField } from '@/components/DateField';
 import { InstallmentInput } from '@/components/InstallmentInput';
 import { PaymentMethodPicker } from '@/components/PaymentMethodPicker';
-import { Colors, Spacing } from '@/constants/theme';
+import { Spacing, type ThemeColors } from '@/constants/theme';
+import { useThemedStyles } from '@/hooks/useTheme';
 import { useCreatePurchase } from '@/hooks/useTransactions';
 import { showAlert } from '@/utils/alert';
 import { parseCurrencyInput } from '@/utils/currency';
@@ -39,6 +40,7 @@ const schema = z
 type FormValues = z.infer<typeof schema>;
 
 export function TransactionForm() {
+  const styles = useThemedStyles(makeStyles);
   const createPurchase = useCreatePurchase();
 
   const {
@@ -223,47 +225,47 @@ export function TransactionForm() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { padding: Spacing.lg },
   typeToggle: {
     flexDirection: 'row',
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
     borderRadius: 12,
     padding: 4,
     marginBottom: Spacing.lg,
   },
   typeButton: { flex: 1, paddingVertical: 10, borderRadius: 10, alignItems: 'center' },
-  typeButtonDespesaActive: { backgroundColor: Colors.danger },
-  typeButtonReceitaActive: { backgroundColor: Colors.success },
-  typeButtonText: { fontWeight: '600', color: Colors.textMuted },
+  typeButtonDespesaActive: { backgroundColor: colors.danger },
+  typeButtonReceitaActive: { backgroundColor: colors.success },
+  typeButtonText: { fontWeight: '600', color: colors.textMuted },
   typeButtonTextActive: { color: '#fff' },
   field: { marginBottom: Spacing.md },
-  label: { fontSize: 13, color: Colors.textMuted, marginBottom: Spacing.xs },
+  label: { fontSize: 13, color: colors.textMuted, marginBottom: Spacing.xs },
   input: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     borderRadius: 12,
     paddingHorizontal: Spacing.md,
     paddingVertical: 12,
     fontSize: 16,
-    color: Colors.text,
+    color: colors.text,
   },
   amountInput: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     borderRadius: 12,
     paddingHorizontal: Spacing.md,
     paddingVertical: 12,
     fontSize: 24,
     fontWeight: '700',
-    color: Colors.text,
+    color: colors.text,
   },
-  inputError: { borderColor: Colors.danger },
-  errorText: { color: Colors.danger, fontSize: 12, marginTop: 4 },
+  inputError: { borderColor: colors.danger },
+  errorText: { color: colors.danger, fontSize: 12, marginTop: 4 },
   submitButton: {
-    backgroundColor: Colors.primary,
+    backgroundColor: colors.primary,
     borderRadius: 12,
     paddingVertical: 14,
     alignItems: 'center',

@@ -15,7 +15,8 @@ import { AccountPicker } from '@/components/AccountPicker';
 import { CategoryPicker } from '@/components/CategoryPicker';
 import { DateField } from '@/components/DateField';
 import { PaymentMethodPicker } from '@/components/PaymentMethodPicker';
-import { Colors, Spacing } from '@/constants/theme';
+import { Spacing, type ThemeColors } from '@/constants/theme';
+import { useTheme, useThemedStyles } from '@/hooks/useTheme';
 import { useTransaction, useUpdatePurchase } from '@/hooks/useTransactions';
 import { showAlert } from '@/utils/alert';
 import { formatCurrency, parseCurrencyInput } from '@/utils/currency';
@@ -23,6 +24,8 @@ import { dayjs, toISODate } from '@/utils/date';
 import type { PaymentMethod, TransactionType } from '@/types/database.types';
 
 export default function EditarTransacaoScreen() {
+  const styles = useThemedStyles(makeStyles);
+  const { colors } = useTheme();
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: transaction, isLoading } = useTransaction(id);
   const updatePurchase = useUpdatePurchase();
@@ -108,7 +111,7 @@ export default function EditarTransacaoScreen() {
       <View style={styles.content}>
         {isRecorrente && (
           <View style={styles.noteBox}>
-            <Feather name="repeat" size={16} color={Colors.primary} />
+            <Feather name="repeat" size={16} color={colors.primary} />
             <Text style={styles.noteText}>
               Esta transação veio de uma recorrência. A edição muda só este lançamento, não a
               recorrência.
@@ -142,7 +145,7 @@ export default function EditarTransacaoScreen() {
               <Text style={styles.lockedValue}>
                 {formatCurrency(transaction.purchase?.total_amount ?? transaction.amount)}
               </Text>
-              <Feather name="lock" size={16} color={Colors.textMuted} />
+              <Feather name="lock" size={16} color={colors.textMuted} />
             </View>
           ) : (
             <TextInput
@@ -173,7 +176,7 @@ export default function EditarTransacaoScreen() {
             <Text style={styles.label}>Data</Text>
             <View style={styles.lockedField}>
               <Text style={styles.lockedValue}>{dayjs(transaction.due_date).format('DD/MM/YYYY')}</Text>
-              <Feather name="lock" size={16} color={Colors.textMuted} />
+              <Feather name="lock" size={16} color={colors.textMuted} />
             </View>
           </View>
         ) : (
@@ -209,11 +212,11 @@ export default function EditarTransacaoScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
+const makeStyles = (colors: ThemeColors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   content: { padding: Spacing.lg },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: Colors.background },
-  notFound: { color: Colors.textMuted, fontSize: 15 },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: colors.background },
+  notFound: { color: colors.textMuted, fontSize: 15 },
   noteBox: {
     flexDirection: 'row',
     gap: Spacing.sm,
@@ -223,66 +226,66 @@ const styles = StyleSheet.create({
     padding: Spacing.md,
     marginBottom: Spacing.md,
   },
-  noteText: { flex: 1, color: Colors.text, fontSize: 13 },
+  noteText: { flex: 1, color: colors.text, fontSize: 13 },
   typeToggle: {
     flexDirection: 'row',
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
     borderRadius: 12,
     padding: 4,
     marginBottom: Spacing.lg,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
   },
   typeButton: { flex: 1, paddingVertical: 10, borderRadius: 10, alignItems: 'center' },
-  typeButtonDespesaActive: { backgroundColor: Colors.danger },
-  typeButtonReceitaActive: { backgroundColor: Colors.success },
-  typeButtonText: { fontWeight: '600', color: Colors.textMuted },
+  typeButtonDespesaActive: { backgroundColor: colors.danger },
+  typeButtonReceitaActive: { backgroundColor: colors.success },
+  typeButtonText: { fontWeight: '600', color: colors.textMuted },
   typeButtonTextActive: { color: '#fff' },
   field: { marginBottom: Spacing.md },
-  label: { fontSize: 13, color: Colors.textMuted, marginBottom: Spacing.xs },
+  label: { fontSize: 13, color: colors.textMuted, marginBottom: Spacing.xs },
   input: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     borderRadius: 12,
     paddingHorizontal: Spacing.md,
     paddingVertical: 12,
     fontSize: 16,
-    color: Colors.text,
+    color: colors.text,
   },
   amountInput: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     borderRadius: 12,
     paddingHorizontal: Spacing.md,
     paddingVertical: 12,
     fontSize: 24,
     fontWeight: '700',
-    color: Colors.text,
+    color: colors.text,
   },
   lockedField: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     borderRadius: 12,
     paddingHorizontal: Spacing.md,
     paddingVertical: 14,
   },
-  lockedValue: { fontSize: 16, color: Colors.textMuted, fontWeight: '600' },
-  inputError: { borderColor: Colors.danger },
-  errorText: { color: Colors.danger, fontSize: 12, marginTop: 4 },
+  lockedValue: { fontSize: 16, color: colors.textMuted, fontWeight: '600' },
+  inputError: { borderColor: colors.danger },
+  errorText: { color: colors.danger, fontSize: 12, marginTop: 4 },
   parceladoNote: {
-    color: Colors.textMuted,
+    color: colors.textMuted,
     fontSize: 12,
     lineHeight: 17,
     marginBottom: Spacing.md,
   },
   saveButton: {
-    backgroundColor: Colors.primary,
+    backgroundColor: colors.primary,
     borderRadius: 12,
     paddingVertical: 14,
     alignItems: 'center',

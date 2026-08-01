@@ -14,7 +14,8 @@ import { IncomeVsExpenseChart } from '@/components/charts/IncomeVsExpenseChart';
 import { MonthlyTrendChart } from '@/components/charts/MonthlyTrendChart';
 import { FilterButton, FilterSheet } from '@/components/FilterSheet';
 import { MonthSelector } from '@/components/MonthSelector';
-import { Colors, Spacing } from '@/constants/theme';
+import { Spacing, type ThemeColors } from '@/constants/theme';
+import { useThemedStyles } from '@/hooks/useTheme';
 import { useTransactions } from '@/hooks/useTransactions';
 import { groupByCategory, groupByMonth, monthlyNetTrend } from '@/utils/aggregations';
 import { lastMonths, monthRange } from '@/utils/date';
@@ -24,6 +25,7 @@ const MONTHS_WINDOW = 12;
 const BAR_CHART_MONTHS = 6;
 
 export default function GraficosScreen() {
+  const styles = useThemedStyles(makeStyles);
   const { width } = useWindowDimensions();
   const [categoryMonth, setCategoryMonth] = useState(new Date());
   const [filters, setFilters] = useState(EMPTY_FILTERS);
@@ -107,19 +109,19 @@ export default function GraficosScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
+const makeStyles = (colors: ThemeColors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   content: { padding: Spacing.lg, gap: Spacing.lg, paddingBottom: Spacing.xl },
   toolbar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  screenTitle: { fontSize: 20, fontWeight: '700', color: Colors.text },
+  screenTitle: { fontSize: 20, fontWeight: '700', color: colors.text },
   card: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderRadius: 16,
     padding: Spacing.md,
   },
-  cardTitle: { fontSize: 15, fontWeight: '700', color: Colors.text, marginBottom: Spacing.xs },
+  cardTitle: { fontSize: 15, fontWeight: '700', color: colors.text, marginBottom: Spacing.xs },
 });

@@ -12,7 +12,8 @@ import {
   View,
 } from 'react-native';
 
-import { Colors, Spacing } from '@/constants/theme';
+import { Spacing, type ThemeColors } from '@/constants/theme';
+import { useTheme, useThemedStyles } from '@/hooks/useTheme';
 import {
   useDeactivateRecurring,
   useRecurringItems,
@@ -23,6 +24,8 @@ import { formatCurrency, parseCurrencyInput } from '@/utils/currency';
 import type { RecurringItem } from '@/types/database.types';
 
 function RecurringRow({ item, onEditAmount }: { item: RecurringItem; onEditAmount: () => void }) {
+  const styles = useThemedStyles(makeStyles);
+  const { colors } = useTheme();
   const deactivate = useDeactivateRecurring();
   const isReceita = item.type === 'receita';
 
@@ -46,7 +49,7 @@ function RecurringRow({ item, onEditAmount }: { item: RecurringItem; onEditAmoun
         <Feather
           name="repeat"
           size={18}
-          color={isReceita ? Colors.success : Colors.danger}
+          color={isReceita ? colors.success : colors.danger}
         />
       </View>
       <View style={styles.info}>
@@ -60,16 +63,16 @@ function RecurringRow({ item, onEditAmount }: { item: RecurringItem; onEditAmoun
         </Text>
       </View>
       <View style={styles.rightCol}>
-        <Text style={[styles.amount, { color: isReceita ? Colors.success : Colors.text }]}>
+        <Text style={[styles.amount, { color: isReceita ? colors.success : colors.text }]}>
           {formatCurrency(item.amount)}
         </Text>
         {item.active && (
           <View style={styles.actions}>
             <Pressable style={styles.actionButton} onPress={onEditAmount}>
-              <Feather name="edit-2" size={16} color={Colors.primary} />
+              <Feather name="edit-2" size={16} color={colors.primary} />
             </Pressable>
             <Pressable style={styles.actionButton} onPress={handleDeactivate}>
-              <Feather name="x-circle" size={16} color={Colors.danger} />
+              <Feather name="x-circle" size={16} color={colors.danger} />
             </Pressable>
           </View>
         )}
@@ -79,6 +82,8 @@ function RecurringRow({ item, onEditAmount }: { item: RecurringItem; onEditAmoun
 }
 
 export default function RecorrentesScreen() {
+  const styles = useThemedStyles(makeStyles);
+  const { colors } = useTheme();
   const { data: items, isLoading } = useRecurringItems();
   const updateAmount = useUpdateRecurringAmount();
 
@@ -125,7 +130,7 @@ export default function RecorrentesScreen() {
             <ActivityIndicator style={{ marginTop: Spacing.xl }} />
           ) : (
             <View style={styles.empty}>
-              <Feather name="repeat" size={32} color={Colors.textMuted} />
+              <Feather name="repeat" size={32} color={colors.textMuted} />
               <Text style={styles.emptyText}>
                 Nenhuma recorrência ainda. Adicione seu salário ou uma conta fixa (ex:
                 internet) abaixo.
@@ -135,7 +140,7 @@ export default function RecorrentesScreen() {
         }
         ListFooterComponent={
           <Pressable style={styles.addButton} onPress={() => router.push('/recorrente/nova')}>
-            <Feather name="plus" size={18} color={Colors.primary} />
+            <Feather name="plus" size={18} color={colors.primary} />
             <Text style={styles.addButtonText}>Nova recorrência</Text>
           </Pressable>
         }
@@ -182,14 +187,14 @@ export default function RecorrentesScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
+const makeStyles = (colors: ThemeColors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   listContent: { padding: Spacing.lg },
-  hint: { color: Colors.textMuted, fontSize: 13, lineHeight: 18, marginBottom: Spacing.md },
+  hint: { color: colors.textMuted, fontSize: 13, lineHeight: 18, marginBottom: Spacing.md },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderRadius: 12,
     padding: Spacing.md,
     marginBottom: Spacing.sm,
@@ -204,8 +209,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   info: { flex: 1 },
-  description: { fontSize: 15, fontWeight: '600', color: Colors.text },
-  meta: { fontSize: 13, color: Colors.textMuted, marginTop: 2 },
+  description: { fontSize: 15, fontWeight: '600', color: colors.text },
+  meta: { fontSize: 13, color: colors.textMuted, marginTop: 2 },
   rightCol: { alignItems: 'flex-end', gap: Spacing.xs },
   amount: { fontSize: 15, fontWeight: '700' },
   actions: { flexDirection: 'row', gap: Spacing.sm },
@@ -216,44 +221,44 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
     paddingHorizontal: Spacing.xl,
   },
-  emptyText: { color: Colors.textMuted, textAlign: 'center', fontSize: 14 },
+  emptyText: { color: colors.textMuted, textAlign: 'center', fontSize: 14 },
   addButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: Spacing.xs,
     borderWidth: 1,
-    borderColor: Colors.primary,
+    borderColor: colors.primary,
     borderStyle: 'dashed',
     borderRadius: 12,
     paddingVertical: 12,
     marginTop: Spacing.md,
   },
-  addButtonText: { color: Colors.primary, fontWeight: '600' },
+  addButtonText: { color: colors.primary, fontWeight: '600' },
   modalRoot: { flex: 1, justifyContent: 'flex-end' },
   backdropTint: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' },
   sheet: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: Spacing.lg,
   },
-  sheetTitle: { fontSize: 16, fontWeight: '700', color: Colors.text },
-  sheetHint: { color: Colors.textMuted, fontSize: 13, marginTop: 4, marginBottom: Spacing.md },
+  sheetTitle: { fontSize: 16, fontWeight: '700', color: colors.text },
+  sheetHint: { color: colors.textMuted, fontSize: 13, marginTop: 4, marginBottom: Spacing.md },
   sheetInput: {
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     borderRadius: 12,
     paddingHorizontal: Spacing.md,
     paddingVertical: 12,
     fontSize: 22,
     fontWeight: '700',
-    color: Colors.text,
+    color: colors.text,
     marginBottom: Spacing.md,
   },
   saveButton: {
-    backgroundColor: Colors.primary,
+    backgroundColor: colors.primary,
     borderRadius: 12,
     paddingVertical: 14,
     alignItems: 'center',

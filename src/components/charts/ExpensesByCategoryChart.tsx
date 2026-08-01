@@ -1,7 +1,8 @@
 import { PieChart, type pieDataItem } from 'react-native-gifted-charts';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { Colors, Spacing } from '@/constants/theme';
+import { Spacing, type ThemeColors } from '@/constants/theme';
+import { useThemedStyles } from '@/hooks/useTheme';
 import { formatCurrency } from '@/utils/currency';
 import type { CategoryTotal } from '@/utils/aggregations';
 
@@ -13,6 +14,7 @@ interface ExpensesByCategoryChartProps {
 }
 
 export function ExpensesByCategoryChart({ categories, availableWidth }: ExpensesByCategoryChartProps) {
+  const styles = useThemedStyles(makeStyles);
   const total = categories.reduce((sum, c) => sum + c.total, 0);
   const radius = Math.min(90, Math.floor(availableWidth / 2) - 10);
   const innerRadius = Math.round(radius * 0.61);
@@ -63,17 +65,17 @@ export function ExpensesByCategoryChart({ categories, availableWidth }: Expenses
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: ThemeColors) => StyleSheet.create({
   container: { alignItems: 'stretch' },
   chartWrapper: { alignItems: 'center', paddingVertical: Spacing.md },
   centerLabel: { alignItems: 'center' },
-  centerLabelValue: { fontSize: 14, fontWeight: '700', color: Colors.text },
-  centerLabelText: { fontSize: 11, color: Colors.textMuted },
+  centerLabelValue: { fontSize: 14, fontWeight: '700', color: colors.text },
+  centerLabelText: { fontSize: 11, color: colors.textMuted },
   legend: { marginTop: Spacing.md, gap: Spacing.sm },
   legendRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
   legendDot: { width: 10, height: 10, borderRadius: 5 },
-  legendLabel: { flex: 1, color: Colors.text, fontSize: 14 },
-  legendValue: { color: Colors.textMuted, fontSize: 14, fontWeight: '600' },
+  legendLabel: { flex: 1, color: colors.text, fontSize: 14 },
+  legendValue: { color: colors.textMuted, fontSize: 14, fontWeight: '600' },
   empty: { paddingVertical: Spacing.xl, alignItems: 'center' },
-  emptyText: { color: Colors.textMuted },
+  emptyText: { color: colors.textMuted },
 });

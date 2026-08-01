@@ -1,7 +1,8 @@
 import { Feather } from '@expo/vector-icons';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
-import { Colors, Spacing } from '@/constants/theme';
+import { Spacing, type ThemeColors } from '@/constants/theme';
+import { useTheme, useThemedStyles } from '@/hooks/useTheme';
 import { dayjs } from '@/utils/date';
 
 interface MonthSelectorProps {
@@ -10,6 +11,8 @@ interface MonthSelectorProps {
 }
 
 export function MonthSelector({ month, onChange }: MonthSelectorProps) {
+  const styles = useThemedStyles(makeStyles);
+  const { colors } = useTheme();
   const label = dayjs(month).format('MMMM [de] YYYY');
 
   return (
@@ -18,11 +21,11 @@ export function MonthSelector({ month, onChange }: MonthSelectorProps) {
         style={styles.arrow}
         onPress={() => onChange(dayjs(month).subtract(1, 'month').toDate())}
       >
-        <Feather name="chevron-left" size={22} color={Colors.text} />
+        <Feather name="chevron-left" size={22} color={colors.text} />
       </Pressable>
       <Text style={styles.label}>{capitalize(label)}</Text>
       <Pressable style={styles.arrow} onPress={() => onChange(dayjs(month).add(1, 'month').toDate())}>
-        <Feather name="chevron-right" size={22} color={Colors.text} />
+        <Feather name="chevron-right" size={22} color={colors.text} />
       </Pressable>
     </View>
   );
@@ -32,7 +35,7 @@ function capitalize(text: string): string {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: ThemeColors) => StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -41,5 +44,5 @@ const styles = StyleSheet.create({
     paddingVertical: Spacing.sm,
   },
   arrow: { padding: Spacing.sm },
-  label: { fontSize: 16, fontWeight: '600', color: Colors.text },
+  label: { fontSize: 16, fontWeight: '600', color: colors.text },
 });

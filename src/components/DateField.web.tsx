@@ -1,6 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 
-import { Colors, Spacing } from '@/constants/theme';
+import { Spacing, type ThemeColors } from '@/constants/theme';
+import { useTheme, useThemedStyles } from '@/hooks/useTheme';
 import { dayjs } from '@/utils/date';
 
 interface DateFieldProps {
@@ -12,6 +13,8 @@ interface DateFieldProps {
 // @react-native-community/datetimepicker não tem build para web, então no preview
 // web usamos um input HTML nativo de data (funciona bem no Chrome/Firefox/Safari).
 export function DateField({ label, value, onChange }: DateFieldProps) {
+  const styles = useThemedStyles(makeStyles);
+  const { colors } = useTheme();
   return (
     <View style={styles.field}>
       <Text style={styles.label}>{label}</Text>
@@ -27,7 +30,7 @@ export function DateField({ label, value, onChange }: DateFieldProps) {
             border: 'none',
             outline: 'none',
             fontSize: 16,
-            color: Colors.text,
+            color: colors.text,
             backgroundColor: 'transparent',
             width: '100%',
             fontFamily: 'inherit',
@@ -38,13 +41,13 @@ export function DateField({ label, value, onChange }: DateFieldProps) {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: ThemeColors) => StyleSheet.create({
   field: { marginBottom: Spacing.md },
-  label: { fontSize: 13, color: Colors.textMuted, marginBottom: Spacing.xs },
+  label: { fontSize: 13, color: colors.textMuted, marginBottom: Spacing.xs },
   input: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     borderRadius: 12,
     paddingHorizontal: Spacing.md,
     paddingVertical: 12,

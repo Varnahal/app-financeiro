@@ -13,7 +13,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { Colors, Spacing } from '@/constants/theme';
+import { Spacing, type ThemeColors } from '@/constants/theme';
+import { useTheme, useThemedStyles, type ThemeMode } from '@/hooks/useTheme';
 import { useAuth } from '@/hooks/useAuth';
 import {
   useAccounts,
@@ -23,6 +24,12 @@ import {
 } from '@/hooks/useAccounts';
 import { showAlert, showConfirm } from '@/utils/alert';
 import type { Account, AccountKind } from '@/types/database.types';
+
+const THEME_OPTIONS: { value: ThemeMode; label: string; icon: 'smartphone' | 'sun' | 'moon' }[] = [
+  { value: 'system', label: 'Automático', icon: 'smartphone' },
+  { value: 'light', label: 'Claro', icon: 'sun' },
+  { value: 'dark', label: 'Escuro', icon: 'moon' },
+];
 
 const ACCOUNT_KIND_LABELS: Record<AccountKind, string> = {
   conta: 'Conta',
@@ -34,6 +41,8 @@ const ACCOUNT_KIND_LABELS: Record<AccountKind, string> = {
 const ACCOUNT_KINDS: AccountKind[] = ['conta', 'cartao', 'dinheiro', 'outro'];
 
 function AccountRow({ account, onRename }: { account: Account; onRename: () => void }) {
+  const styles = useThemedStyles(makeStyles);
+  const { colors } = useTheme();
   const deleteAccount = useDeleteAccount();
 
   async function handleDelete() {
@@ -53,7 +62,7 @@ function AccountRow({ account, onRename }: { account: Account; onRename: () => v
   return (
     <View style={styles.accountRow}>
       <View style={styles.accountIcon}>
-        <Feather name={account.kind === 'cartao' ? 'credit-card' : 'briefcase'} size={18} color={Colors.primary} />
+        <Feather name={account.kind === 'cartao' ? 'credit-card' : 'briefcase'} size={18} color={colors.primary} />
       </View>
       <View style={{ flex: 1 }}>
         <Text style={styles.accountName}>{account.name}</Text>
@@ -61,7 +70,7 @@ function AccountRow({ account, onRename }: { account: Account; onRename: () => v
       </View>
       <View style={styles.accountActions}>
         <Pressable style={styles.accountActionButton} onPress={onRename}>
-          <Feather name="edit-2" size={16} color={Colors.primary} />
+          <Feather name="edit-2" size={16} color={colors.primary} />
         </Pressable>
         <Pressable
           style={styles.accountActionButton}
@@ -69,9 +78,9 @@ function AccountRow({ account, onRename }: { account: Account; onRename: () => v
           disabled={deleteAccount.isPending}
         >
           {deleteAccount.isPending ? (
-            <ActivityIndicator size="small" color={Colors.danger} />
+            <ActivityIndicator size="small" color={colors.danger} />
           ) : (
-            <Feather name="trash-2" size={16} color={Colors.danger} />
+            <Feather name="trash-2" size={16} color={colors.danger} />
           )}
         </Pressable>
       </View>
@@ -80,6 +89,8 @@ function AccountRow({ account, onRename }: { account: Account; onRename: () => v
 }
 
 export default function PerfilScreen() {
+  const styles = useThemedStyles(makeStyles);
+  const { colors, mode, setMode } = useTheme();
   const { user, signOut } = useAuth();
   const { data: accounts, isLoading } = useAccounts();
   const createAccount = useCreateAccount();
@@ -198,24 +209,47 @@ export default function PerfilScreen() {
               </View>
             ) : (
               <Pressable style={styles.addButton} onPress={() => setShowForm(true)}>
-                <Feather name="plus" size={18} color={Colors.primary} />
+                <Feather name="plus" size={18} color={colors.primary} />
                 <Text style={styles.addButtonText}>Nova conta</Text>
               </Pressable>
             )}
 
             <Pressable style={styles.menuRow} onPress={() => router.push('/recorrentes')}>
               <View style={styles.menuIcon}>
-                <Feather name="repeat" size={18} color={Colors.primary} />
+                <Feather name="repeat" size={18} color={colors.primary} />
               </View>
               <View style={{ flex: 1 }}>
                 <Text style={styles.menuTitle}>Recorrentes</Text>
                 <Text style={styles.menuSubtitle}>Salário e contas fixas mensais</Text>
               </View>
-              <Feather name="chevron-right" size={20} color={Colors.textMuted} />
+              <Feather name="chevron-right" size={20} color={colors.textMuted} />
             </Pressable>
 
+            <Text style={styles.sectionTitle}>Aparência</Text>
+            <View style={styles.themeRow}>
+              {THEME_OPTIONS.map((option) => {
+                const active = mode === option.value;
+                return (
+                  <Pressable
+                    key={option.value}
+                    style={[styles.themeChip, active && styles.themeChipActive]}
+                    onPress={() => setMode(option.value)}
+                  >
+                    <Feather
+                      name={option.icon}
+                      size={16}
+                      color={active ? '#fff' : colors.textMuted}
+                    />
+                    <Text style={[styles.themeChipText, active && styles.themeChipTextActive]}>
+                      {option.label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+
             <Pressable style={styles.signOutButton} onPress={handleSignOut}>
-              <Feather name="log-out" size={18} color={Colors.danger} />
+              <Feather name="log-out" size={18} color={colors.danger} />
               <Text style={styles.signOutText}>Sair</Text>
             </Pressable>
           </View>
@@ -263,32 +297,49 @@ export default function PerfilScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: Colors.background },
+const makeStyles = (colors: ThemeColors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.background },
   listContent: { padding: Spacing.lg },
   header: { alignItems: 'center', marginBottom: Spacing.lg },
   avatar: {
     width: 64,
     height: 64,
     borderRadius: 32,
-    backgroundColor: Colors.primary,
+    backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: Spacing.sm,
   },
-  email: { fontSize: 16, fontWeight: '600', color: Colors.text },
+  email: { fontSize: 16, fontWeight: '600', color: colors.text },
   sectionTitle: {
     fontSize: 14,
     fontWeight: '600',
-    color: Colors.textMuted,
+    color: colors.textMuted,
     textTransform: 'uppercase',
     marginBottom: Spacing.sm,
+    marginTop: Spacing.md,
   },
-  emptyText: { color: Colors.textMuted, fontSize: 14, marginBottom: Spacing.md },
+  themeRow: { flexDirection: 'row', gap: Spacing.sm },
+  themeChip: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.xs,
+    paddingVertical: 10,
+    borderRadius: 12,
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  themeChipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
+  themeChipText: { fontSize: 13, color: colors.textMuted, fontWeight: '600' },
+  themeChipTextActive: { color: '#fff' },
+  emptyText: { color: colors.textMuted, fontSize: 14, marginBottom: Spacing.md },
   accountRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderRadius: 12,
     padding: Spacing.md,
     marginBottom: Spacing.sm,
@@ -302,29 +353,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  accountName: { fontSize: 15, fontWeight: '600', color: Colors.text },
-  accountKind: { fontSize: 13, color: Colors.textMuted },
+  accountName: { fontSize: 15, fontWeight: '600', color: colors.text },
+  accountKind: { fontSize: 13, color: colors.textMuted },
   accountActions: { flexDirection: 'row', gap: Spacing.sm },
   accountActionButton: { padding: 6 },
   modalRoot: { flex: 1, justifyContent: 'flex-end' },
   backdropTint: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' },
   sheet: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: Spacing.lg,
   },
-  sheetTitle: { fontSize: 16, fontWeight: '700', color: Colors.text },
-  sheetHint: { color: Colors.textMuted, fontSize: 13, marginTop: 4, marginBottom: Spacing.md },
+  sheetTitle: { fontSize: 16, fontWeight: '700', color: colors.text },
+  sheetHint: { color: colors.textMuted, fontSize: 13, marginTop: 4, marginBottom: Spacing.md },
   sheetInput: {
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     borderRadius: 12,
     paddingHorizontal: Spacing.md,
     paddingVertical: 12,
     fontSize: 16,
-    color: Colors.text,
+    color: colors.text,
     marginBottom: Spacing.md,
   },
   footer: { marginTop: Spacing.md, gap: Spacing.md },
@@ -334,21 +385,21 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: Spacing.xs,
     borderWidth: 1,
-    borderColor: Colors.primary,
+    borderColor: colors.primary,
     borderStyle: 'dashed',
     borderRadius: 12,
     paddingVertical: 12,
   },
-  addButtonText: { color: Colors.primary, fontWeight: '600' },
+  addButtonText: { color: colors.primary, fontWeight: '600' },
   form: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderRadius: 12,
     padding: Spacing.md,
     gap: Spacing.sm,
   },
   input: {
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     borderRadius: 10,
     paddingHorizontal: Spacing.md,
     paddingVertical: 10,
@@ -359,15 +410,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: Spacing.md,
     paddingVertical: 6,
     borderRadius: 999,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
   },
-  kindChipActive: { backgroundColor: Colors.primary, borderColor: Colors.primary },
-  kindChipText: { fontSize: 13, color: Colors.textMuted },
+  kindChipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
+  kindChipText: { fontSize: 13, color: colors.textMuted },
   kindChipTextActive: { color: '#fff', fontWeight: '600' },
   saveButton: {
-    backgroundColor: Colors.primary,
+    backgroundColor: colors.primary,
     borderRadius: 10,
     paddingVertical: 12,
     alignItems: 'center',
@@ -376,7 +427,7 @@ const styles = StyleSheet.create({
   menuRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderRadius: 12,
     padding: Spacing.md,
     gap: Spacing.md,
@@ -389,8 +440,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  menuTitle: { fontSize: 15, fontWeight: '600', color: Colors.text },
-  menuSubtitle: { fontSize: 13, color: Colors.textMuted },
+  menuTitle: { fontSize: 15, fontWeight: '600', color: colors.text },
+  menuSubtitle: { fontSize: 13, color: colors.textMuted },
   signOutButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -398,5 +449,5 @@ const styles = StyleSheet.create({
     gap: Spacing.xs,
     paddingVertical: 12,
   },
-  signOutText: { color: Colors.danger, fontWeight: '600' },
+  signOutText: { color: colors.danger, fontWeight: '600' },
 });

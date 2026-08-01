@@ -13,9 +13,11 @@ import {
 } from 'react-native';
 
 import { useAuth } from '@/hooks/useAuth';
-import { Colors, Spacing } from '@/constants/theme';
+import { Spacing, type ThemeColors } from '@/constants/theme';
+import { useThemedStyles } from '@/hooks/useTheme';
 
 export default function CadastroScreen() {
+  const styles = useThemedStyles(makeStyles);
   const { signUp } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -130,50 +132,50 @@ export default function CadastroScreen() {
   );
 }
 
-const styles = StyleSheet.create({
+const makeStyles = (colors: ThemeColors) => StyleSheet.create({
   flex: { flex: 1 },
   container: {
     flexGrow: 1,
     justifyContent: 'center',
     padding: Spacing.lg,
-    backgroundColor: Colors.background,
+    backgroundColor: colors.background,
   },
   title: {
     fontSize: 28,
     fontWeight: '700',
-    color: Colors.text,
+    color: colors.text,
     textAlign: 'center',
   },
   subtitle: {
     fontSize: 15,
-    color: Colors.textMuted,
+    color: colors.textMuted,
     textAlign: 'center',
     marginBottom: Spacing.lg,
   },
   field: { marginBottom: Spacing.md },
   label: {
     fontSize: 13,
-    color: Colors.textMuted,
+    color: colors.textMuted,
     marginBottom: Spacing.xs,
   },
   input: {
-    backgroundColor: Colors.surface,
+    backgroundColor: colors.surface,
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: colors.border,
     borderRadius: 12,
     paddingHorizontal: Spacing.md,
     paddingVertical: 12,
     fontSize: 16,
-    color: Colors.text,
+    color: colors.text,
   },
   errorText: {
-    color: Colors.danger,
+    color: colors.danger,
     fontSize: 13,
     textAlign: 'center',
     marginBottom: Spacing.sm,
   },
   button: {
-    backgroundColor: Colors.primary,
+    backgroundColor: colors.primary,
     borderRadius: 12,
     paddingVertical: 14,
     alignItems: 'center',
@@ -182,5 +184,5 @@ const styles = StyleSheet.create({
   buttonPressed: { opacity: 0.8 },
   buttonText: { color: '#fff', fontSize: 16, fontWeight: '600' },
   linkButton: { marginTop: Spacing.lg, alignItems: 'center' },
-  linkText: { color: Colors.primary, fontSize: 14, fontWeight: '500' },
+  linkText: { color: colors.primary, fontSize: 14, fontWeight: '500' },
 });
