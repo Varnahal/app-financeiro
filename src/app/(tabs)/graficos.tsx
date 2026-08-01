@@ -2,6 +2,7 @@ import { Feather } from '@expo/vector-icons';
 import { useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -15,7 +16,7 @@ import { ExpensesByCategoryChart } from '@/components/charts/ExpensesByCategoryC
 import { IncomeVsExpenseChart } from '@/components/charts/IncomeVsExpenseChart';
 import { FilterButton, FilterSheet } from '@/components/FilterSheet';
 import { MonthSelector } from '@/components/MonthSelector';
-import { Spacing, type ThemeColors } from '@/constants/theme';
+import { Spacing, WebMaxWidth, type ThemeColors } from '@/constants/theme';
 import { useTheme, useThemedStyles } from '@/hooks/useTheme';
 import { useTransactions } from '@/hooks/useTransactions';
 import { groupByCategory, groupByMonth } from '@/utils/aggregations';
@@ -33,8 +34,13 @@ export default function GraficosScreen() {
   const [filters, setFilters] = useState(EMPTY_FILTERS);
   const [filterOpen, setFilterOpen] = useState(false);
 
-  // Largura útil dentro dos cards: tela − padding da tela (lg×2) − padding do card (md×2).
-  const chartWidth = width - Spacing.lg * 2 - Spacing.md * 2;
+  // No web o app fica numa coluna central de largura máxima (WebMaxWidth), mas
+  // useWindowDimensions() devolve a largura da JANELA inteira — numa tela grande
+  // o gráfico era dimensionado com ~1900px e vazava para fora da coluna. Limita
+  // à largura real da coluna. No nativo, a janela é a própria tela (sem mudança).
+  const columnWidth = Platform.OS === 'web' ? Math.min(width, WebMaxWidth) : width;
+  // Largura útil dentro dos cards: coluna − padding da tela (lg×2) − padding do card (md×2).
+  const chartWidth = columnWidth - Spacing.lg * 2 - Spacing.md * 2;
 
   const periodMonths = useMemo(() => monthsBetween(startMonth, endMonth), [startMonth, endMonth]);
 
