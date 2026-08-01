@@ -3,7 +3,7 @@ import { ActivityIndicator, Modal, Pressable, StyleSheet, Text, View } from 'rea
 
 import { DateField } from '@/components/DateField';
 import { MonthSelector } from '@/components/MonthSelector';
-import { Spacing, type ThemeColors } from '@/constants/theme';
+import { Spacing, WebMaxWidth, type ThemeColors } from '@/constants/theme';
 import { useThemedStyles } from '@/hooks/useTheme';
 import { fetchTransactionsInRange } from '@/hooks/useTransactions';
 import { showAlert } from '@/utils/alert';
@@ -126,9 +126,13 @@ export function ExportSheet({ visible, onClose, initialMonth }: ExportSheetProps
 }
 
 const makeStyles = (colors: ThemeColors) => StyleSheet.create({
-  modalRoot: { flex: 1, justifyContent: 'flex-end' },
+  // No web mantém o sheet dentro da coluna do app (o Modal renderiza na janela
+  // toda). No celular (<maxWidth) é no-op, então o APK não muda.
+  modalRoot: { flex: 1, justifyContent: 'flex-end', alignItems: 'center' },
   backdropTint: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' },
   sheet: {
+    width: '100%',
+    maxWidth: WebMaxWidth,
     backgroundColor: colors.surface,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,

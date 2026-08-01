@@ -11,7 +11,7 @@ import {
   View,
 } from 'react-native';
 
-import { Spacing, type ThemeColors } from '@/constants/theme';
+import { Spacing, WebMaxWidth, type ThemeColors } from '@/constants/theme';
 import { useTheme, useThemedStyles } from '@/hooks/useTheme';
 
 export interface PickerOption {
@@ -119,9 +119,14 @@ const makeStyles = (colors: ThemeColors) => StyleSheet.create({
   value: { flex: 1, fontSize: 16, color: colors.text },
   placeholder: { color: colors.textMuted },
   errorText: { color: colors.danger, fontSize: 12, marginTop: 4 },
-  modalRoot: { flex: 1, justifyContent: 'flex-end' },
+  // alignItems center + sheet width 100%/maxWidth mantém o sheet dentro da coluna
+  // do app no web (o Modal renderiza na janela toda). No celular (<maxWidth) é
+  // no-op, então o APK não muda.
+  modalRoot: { flex: 1, justifyContent: 'flex-end', alignItems: 'center' },
   backdropTint: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' },
   sheet: {
+    width: '100%',
+    maxWidth: WebMaxWidth,
     backgroundColor: colors.surface,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,

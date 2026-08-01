@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { PAYMENT_METHODS, PAYMENT_METHOD_LABELS } from '@/constants/categories';
-import { Spacing, type ThemeColors } from '@/constants/theme';
+import { Spacing, WebMaxWidth, type ThemeColors } from '@/constants/theme';
 import { useTheme, useThemedStyles } from '@/hooks/useTheme';
 import { useAccounts } from '@/hooks/useAccounts';
 import { useCategories } from '@/hooks/useCategories';
@@ -159,9 +159,13 @@ const makeStyles = (colors: ThemeColors) => StyleSheet.create({
     paddingHorizontal: 4,
   },
   badgeText: { color: '#fff', fontSize: 11, fontWeight: '700' },
-  modalRoot: { flex: 1, justifyContent: 'flex-end' },
+  // No web mantém o sheet dentro da coluna do app (o Modal renderiza na janela
+  // toda). No celular (<maxWidth) é no-op, então o APK não muda.
+  modalRoot: { flex: 1, justifyContent: 'flex-end', alignItems: 'center' },
   backdropTint: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)' },
   sheet: {
+    width: '100%',
+    maxWidth: WebMaxWidth,
     backgroundColor: colors.surface,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
