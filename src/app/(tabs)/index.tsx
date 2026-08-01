@@ -5,6 +5,7 @@ import {
   ActivityIndicator,
   Platform,
   Pressable,
+  RefreshControl,
   SectionList,
   StyleSheet,
   Text,
@@ -56,7 +57,7 @@ export default function TransacoesScreen() {
   const [filterOpen, setFilterOpen] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
   const range = useMemo(() => monthRange(month), [month]);
-  const { data: transactions, isLoading } = useTransactions(range);
+  const { data: transactions, isLoading, refetch, isRefetching } = useTransactions(range);
 
   // Atalho de teclado no desktop: tecla "N" abre Nova Transação (ignorado
   // quando o foco está num campo de texto). Só no navegador.
@@ -93,6 +94,9 @@ export default function TransacoesScreen() {
         <View style={{ flex: 1 }}>
           <MonthSelector month={month} onChange={setMonth} />
         </View>
+        <Pressable style={styles.exportButton} onPress={() => refetch()}>
+          <Feather name="refresh-cw" size={19} color={colors.text} />
+        </Pressable>
         <Pressable style={styles.exportButton} onPress={() => setExportOpen(true)}>
           <Feather name="download" size={20} color={colors.text} />
         </Pressable>
@@ -119,6 +123,13 @@ export default function TransacoesScreen() {
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.listContent}
           stickySectionHeadersEnabled={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefetching}
+              onRefresh={refetch}
+              tintColor={colors.textMuted}
+            />
+          }
           renderSectionHeader={({ section }) => (
             <View style={styles.sectionHeader}>
               <Text style={styles.sectionTitle}>{section.title}</Text>
