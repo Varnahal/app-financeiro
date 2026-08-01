@@ -1,5 +1,5 @@
 import { BarChart, type barDataItem } from 'react-native-gifted-charts';
-import { StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 
 import { Spacing, type ThemeColors } from '@/constants/theme';
 import { useTheme, useThemedStyles } from '@/hooks/useTheme';
@@ -13,6 +13,18 @@ const EDGE_SPACING = 8;
 // Abaixo desta largura por mês as barras ficariam ilegíveis, então entra rolagem
 // horizontal em vez de espremer tudo na tela.
 const MIN_MONTH_WIDTH = 56;
+
+const isWeb = Platform.OS === 'web';
+
+// Arredonda para cima para um valor "redondo" (1/1.5/2/3/4/5/6/8/10 × 10^k),
+// dando um eixo limpo e folga acima da barra mais alta para o rótulo de topo.
+function niceCeil(value: number): number {
+  if (value <= 0) return 1;
+  const pow = Math.pow(10, Math.floor(Math.log10(value)));
+  const n = value / pow;
+  const step = [1, 1.5, 2, 3, 4, 5, 6, 8, 10].find((s) => n <= s) ?? 10;
+  return step * pow;
+}
 
 interface IncomeVsExpenseChartProps {
   months: MonthlyTotal[];
@@ -32,6 +44,11 @@ export function IncomeVsExpenseChart({ months, availableWidth }: IncomeVsExpense
   const monthWidth = scroll ? MIN_MONTH_WIDTH : fitMonthWidth;
   const barWidth = Math.max(6, Math.floor((monthWidth - GROUP_SPACING - PAIR_SPACING) / 2));
 
+  // Só no web: teto arredondado com folga para o rótulo da barra mais alta não
+  // encostar no topo. No nativo fica undefined (a lib calcula, como hoje no APK).
+  const maxVal = Math.max(0, ...months.flatMap((m) => [m.receita, m.despesa]));
+  const maxValue = isWeb && maxVal > 0 ? niceCeil(maxVal) : undefined;
+
   const topLabel = (value: number) =>
     value > 0
       ? () => (
@@ -40,6 +57,14 @@ export function IncomeVsExpenseChart({ months, availableWidth }: IncomeVsExpense
           </Text>
         )
       : undefined;
+
+  // O gifted-charts limita o rótulo à largura da barra (~30px), truncando
+  // "R$ 3,3k". Só no web: alarga o contêiner do rótulo e recentra sobre a barra
+  // com margem negativa. No nativo fica undefined (APK intacto).
+  const LABEL_W = 56;
+  const topLabelContainerStyle = isWeb
+    ? { width: LABEL_W, marginLeft: (barWidth - LABEL_W) / 2 }
+    : undefined;
 
   const data: barDataItem[] = months.flatMap((m) => [
     {
@@ -50,8 +75,14 @@ export function IncomeVsExpenseChart({ months, availableWidth }: IncomeVsExpense
       labelTextStyle: { color: colors.textMuted, fontSize: 10 },
       frontColor: colors.success,
       topLabelComponent: topLabel(m.receita),
+      topLabelContainerStyle,
     },
-    { value: m.despesa, frontColor: colors.danger, topLabelComponent: topLabel(m.despesa) },
+    {
+      value: m.despesa,
+      frontColor: colors.danger,
+      topLabelComponent: topLabel(m.despesa),
+      topLabelContainerStyle,
+    },
   ]);
 
   return (
@@ -71,10 +102,13 @@ export function IncomeVsExpenseChart({ months, availableWidth }: IncomeVsExpense
         disableScroll={!scroll}
         roundedTop
         noOfSections={4}
+        maxValue={maxValue}
         yAxisTextStyle={{ color: colors.textMuted, fontSize: 10 }}
         xAxisLabelTextStyle={{ color: colors.textMuted, fontSize: 10 }}
         hideRules
-        isAnimated
+        // No web a animação do gifted-charts às vezes deixa as barras presas em
+        // altura 0; no nativo ela funciona (APK já validado), então mantemos lá.
+        isAnimated={!isWeb}
       />
     </View>
   );
@@ -96,5 +130,14 @@ const makeStyles = (colors: ThemeColors) => StyleSheet.create({
   legendItem: { flexDirection: 'row', alignItems: 'center', gap: Spacing.xs },
   dot: { width: 10, height: 10, borderRadius: 5 },
   legendText: { color: colors.textMuted, fontSize: 13 },
-  topLabel: { color: colors.textMuted, fontSize: 9, width: 46, textAlign: 'center', marginBottom: 2 },
+  topLabel: {
+    color: colors.textMuted,
+    fontSize: 9,
+    // No web o rótulo apertava e truncava ("R$ 3…"); um pouco mais largo cabe
+    // "R$ 3,3k" inteiro. Como receita e despesa quase nunca têm a mesma altura,
+    // os dois rótulos do par não se sobrepõem.
+    width: isWeb ? 56 : 46,
+    textAlign: 'center',
+    marginBottom: 2,
+  },
 });

@@ -1,8 +1,8 @@
 import { PieChart, type pieDataItem } from 'react-native-gifted-charts';
-import { StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 
 import { Spacing, type ThemeColors } from '@/constants/theme';
-import { useThemedStyles } from '@/hooks/useTheme';
+import { useTheme, useThemedStyles } from '@/hooks/useTheme';
 import { formatCurrency } from '@/utils/currency';
 import type { CategoryTotal } from '@/utils/aggregations';
 
@@ -15,6 +15,7 @@ interface ExpensesByCategoryChartProps {
 
 export function ExpensesByCategoryChart({ categories, availableWidth }: ExpensesByCategoryChartProps) {
   const styles = useThemedStyles(makeStyles);
+  const { colors } = useTheme();
   const total = categories.reduce((sum, c) => sum + c.total, 0);
   const radius = Math.min(90, Math.floor(availableWidth / 2) - 10);
   const innerRadius = Math.round(radius * 0.61);
@@ -41,6 +42,8 @@ export function ExpensesByCategoryChart({ categories, availableWidth }: Expenses
           donut
           radius={radius}
           innerRadius={innerRadius}
+          innerCircleColor={Platform.OS === 'web' ? colors.surface : undefined}
+          innerCircleBorderWidth={0}
           centerLabelComponent={() => (
             <View style={styles.centerLabel}>
               <Text style={styles.centerLabelValue}>{formatCurrency(total)}</Text>
